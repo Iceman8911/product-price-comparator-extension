@@ -1,0 +1,15 @@
+{
+	"dependencies": {
+		"ky": "^1.14.0",
+		"valibot": "^1.1.0"
+	},
+	"devDependencies": {
+		"typescript": "^5.3.0"
+	},
+	"exports": {
+		".": "./src/index.ts"
+	},
+	"name": "@bandwidth-saver/shared",
+	"type": "module",
+	"version": "0.0.0"
+}
