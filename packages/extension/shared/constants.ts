@@ -27,26 +27,6 @@ export const MessageType = {
 } as const;
 export type MessageType = ObjectToEnum<typeof MessageType>;
 
-export const CompressionMode = {
-	/** Uses `declartiveNetRequest` to redirect requests to a remote proxy running the code from the `proxy` package, which will handle the rest.
-	 *
-	 */
-	PROXY: "proxy",
-
-	/** Uses `declartiveNetRequest` to redirect requests to a single compressor endpoint.
-	 *
-	 * 	Failed redirects on `img` elements fall back to the original url
-	 */
-	SIMPLE: "simple",
-
-	/** Only avaible for MV2.
-	 *
-	 * Uses `webRequestBlocking` to modify and redirect requests to any working endpoint.
-	 */
-	WEB_REQUEST: "mv2",
-} as const;
-export type CompressionMode = ObjectToEnum<typeof CompressionMode>;
-
 export const StorageKey = {
 	/** Default settings for customizing compression */
 	DEFAULT_SETTINGS_COMPRESSION: "local:compression",
@@ -82,66 +62,4 @@ export type SiteSpecificStorageKey =
 	| typeof StorageKey.SITE_SPECIFIC_SETTINGS_PROXY_PREFIX
 	| typeof StorageKey.SITE_SPECIFIC_STATISTICS_PREFIX;
 
-export enum DeclarativeNetRequestRuleIds {
-	_MAX_NUMBER_OF_REGEX_RULES = 1000,
-	/** Uses regex as the limit cus most of the rules will be regex-related anyway */
-	_DECLARATIVE_NET_REQUEST_RULE_ID_RANGE = _MAX_NUMBER_OF_REGEX_RULES / 8,
-
-	DEFAULT_SAVE_DATA_HEADER = 1,
-	SITE_SAVE_DATA_HEADER,
-	_$END_SITE_SAVE_DATA_HEADER = SITE_SAVE_DATA_HEADER +
-		_DECLARATIVE_NET_REQUEST_RULE_ID_RANGE,
-
-	GLOBAL_COMPRESSION_MODE_SIMPLE,
-	SITE_COMPRESSION_MODE_SIMPLE,
-	_$END_SITE_COMPRESSION_MODE_SIMPLE = SITE_COMPRESSION_MODE_SIMPLE +
-		_DECLARATIVE_NET_REQUEST_RULE_ID_RANGE,
-
-	GLOBAL_COMPRESSION_MODE_PROXY,
-	SITE_COMPRESSION_MODE_PROXY,
-	_$END_SITE_COMPRESSION_MODE_PROXY = SITE_COMPRESSION_MODE_PROXY +
-		_DECLARATIVE_NET_REQUEST_RULE_ID_RANGE,
-
-	GLOBAL_COMPRESSION_MODE_MV2,
-	SITE_COMPRESSION_MODE_MV2_REMOVE,
-	_$END_SITE_COMPRESSION_MODE_MV2_REMOVE = SITE_COMPRESSION_MODE_MV2_REMOVE +
-		_DECLARATIVE_NET_REQUEST_RULE_ID_RANGE,
-
-	/** CSP removal for sites that block external image sources
-	 *
-	 * I've only seen need of it for sites like discord, and ofc I'll warn the user of the dangers of enabling this
-	 *
-	 */
-	GLOBAL_BYPASS_CSP_BLOCKING,
-	SITE_BYPASS_CSP_BLOCKING,
-	_$END_SITE_BYPASS_CSP_BLOCKING = SITE_BYPASS_CSP_BLOCKING +
-		_DECLARATIVE_NET_REQUEST_RULE_ID_RANGE,
-
-	EXEMPT_WHITELISTED_DOMAINS_FROM_COMPRESSION,
-	EXEMPT_FLAGGED_REQUESTS,
-	EXEMPT_FAVICONS_FROM_COMPRESSION,
-	EXEMPT_COMPRESSION_ENDPOINTS_FROM_COMPRESSION,
-	EXEMPT_SVGS_FROM_COMPRESSION,
-	EXEMPT_NEXT_JS_OPTIMIZED_IMAGES_FROM_COMPRESSION,
-}
-
-export enum DeclarativeNetRequestPriority {
-	LOWEST = 1,
-	LOW,
-	MID,
-	HIGH,
-	HIGHEST,
-}
-
 export const UPDATE_INTERVAL_IN_MS = 1000 * 60 * 60;
-
-/** A no-op rule condition that matches no requests.
- *
- * Uses an impossible domain to ensure the rule never triggers.
- * Useful for site-specific rules where the feature is disabled but we still need a valid rule.
- */
-export const NOOP_RULE_CONDITION = {
-	requestDomains: ["never-ever-match.invalid"],
-} as const satisfies Browser.declarativeNetRequest.RuleCondition;
-
-export const MAX_DAYS_OF_DAILY_STATISTICS = 90;
