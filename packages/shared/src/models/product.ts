@@ -12,7 +12,7 @@ export type ProductDataRatingSchema = v.InferOutput<
 >;
 
 export const ProductDataSchema = v.object({
-	/** "Naira", "Dollars", "Euros" */
+	/** "$" */
 	currency: v.string(),
 	name: v.string(),
 	/** Effective price.
