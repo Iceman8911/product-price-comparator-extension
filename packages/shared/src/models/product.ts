@@ -1,5 +1,5 @@
 import * as v from "valibot";
-import { PRODUCT_RATING_RANGE } from "@/shared/constants";
+import { PRODUCT_RATING_RANGE } from "../constants";
 
 export const ProductDataRatingSchema = v.pipe(
 	v.number(),

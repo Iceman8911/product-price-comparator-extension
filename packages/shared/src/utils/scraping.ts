@@ -1,6 +1,6 @@
 import * as v from "valibot";
-import { ProductDataRatingSchema } from "@/models/product";
-import { PRODUCT_RATING_RANGE } from "@/shared/constants";
+import { PRODUCT_RATING_RANGE } from "../constants";
+import { ProductDataRatingSchema } from "../models/product";
 
 const PERIOD_OR_COMMA_REGEX = /,|\./;
 
