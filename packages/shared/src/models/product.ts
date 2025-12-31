@@ -3,9 +3,8 @@ import { PRODUCT_RATING_RANGE } from "../constants";
 
 export const ProductDataRatingSchema = v.pipe(
 	v.number(),
-	v.toMinValue(PRODUCT_RATING_RANGE.MIN),
-	v.toMaxValue(PRODUCT_RATING_RANGE.MAX),
-	v.brand("product-rating"),
+	v.minValue(PRODUCT_RATING_RANGE.MIN),
+	v.maxValue(PRODUCT_RATING_RANGE.MAX),
 );
 export type ProductDataRatingSchema = v.InferOutput<
 	typeof ProductDataRatingSchema
@@ -21,5 +20,7 @@ export const ProductDataSchema = v.object({
 	 */
 	price: v.number(),
 	rating: ProductDataRatingSchema,
+	/** "Konga", "Jumia", "Temu", "Ebay", etc */
+	store: v.string(),
 });
 export type ProductDataSchema = v.InferOutput<typeof ProductDataSchema>;
