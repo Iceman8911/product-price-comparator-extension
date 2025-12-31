@@ -25,8 +25,18 @@ function cleanRatingString(ratingStr: string): ProductDataRatingSchema {
 	return v.parse(ProductDataRatingSchema, actualRating);
 }
 
+function cleanCurrencyString(currencyString: string) {
+	return currencyString;
+}
+
+function cleanCurrencyName(name: string) {
+	return name;
+}
+
 /** For cleaning and extracting proper data from scraped strings */
 export const SCRAPED_PRODUCT_DATA_CLEANER = {
+	currency: cleanCurrencyString,
+	name: cleanCurrencyName,
 	price: cleanPriceString,
 	rating: cleanRatingString,
 } as const satisfies {
