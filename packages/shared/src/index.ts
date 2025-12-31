@@ -5,6 +5,7 @@ export * from "./utils/array";
 export * from "./utils/blob";
 export * from "./utils/clone";
 export * from "./utils/fetch";
+export * from "./utils/phind";
 export * from "./utils/random";
 export * from "./utils/scraping";
 export * from "./utils/string";
