@@ -63,3 +63,11 @@ export type SiteSpecificStorageKey =
 	| typeof StorageKey.SITE_SPECIFIC_STATISTICS_PREFIX;
 
 export const UPDATE_INTERVAL_IN_MS = 1000 * 60 * 60;
+
+/** The collection of sites I personally optimised for, those not included will fall back to a generic catch-all approach */
+export enum SupportedSiteDomains {
+	KONGA = "www.konga.com",
+	JUMIA = "www.jumia.com",
+	TEMU = "www.temu.com",
+	JIJI = "www.jumia.com.ng",
+}
