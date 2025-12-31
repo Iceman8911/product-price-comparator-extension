@@ -86,3 +86,8 @@ export const PRODUCT_SITE_SCRAPING_QUERY_SELECTOR = {
 } as const satisfies {
 	[key in SupportedSiteDomains]?: { [key in keyof ProductDataSchema]: string };
 };
+
+export enum PRODUCT_RATING_RANGE {
+	MIN = 1,
+	MAX = 5,
+}

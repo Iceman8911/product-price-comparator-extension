@@ -1,12 +1,10 @@
 import * as v from "valibot";
-
-const MINIMUM_RATING = 1;
-const MAXIMUM_RATING = 5;
+import { PRODUCT_RATING_RANGE } from "@/shared/constants";
 
 export const ProductDataRatingSchema = v.pipe(
 	v.number(),
-	v.toMinValue(MINIMUM_RATING),
-	v.toMaxValue(MAXIMUM_RATING),
+	v.toMinValue(PRODUCT_RATING_RANGE.MIN),
+	v.toMaxValue(PRODUCT_RATING_RANGE.MAX),
 	v.brand("product-rating"),
 );
 export type ProductDataRatingSchema = v.InferOutput<
