@@ -56,5 +56,5 @@ export const getActiveTabUrl = async () => {
 // export const UPDATE_INTERVAL_IN_MS = 1000 * 60 * 60;
 
 export enum MessageType {
-	SEND_SHOPPING_SITE_DOM_CONTENT_TO_BACKGROUND = "1",
+	SEND_PROMPT_TO_PHIND_AI_VIA_BACKGROUND_WORKER = "1",
 }
