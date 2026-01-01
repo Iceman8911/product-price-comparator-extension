@@ -26,6 +26,6 @@ export enum SupportedSitePatterns {
 }
 
 export enum PRODUCT_RATING_RANGE {
-	MIN = 1,
+	MIN = 0,
 	MAX = 5,
 }
