@@ -1,10 +1,10 @@
+import type { sendQueryToPhindAi } from "@bandwidth-saver/shared";
 import { defineExtensionMessaging } from "@webext-core/messaging";
 import { MessageType } from "./constants";
-import type { BandwidthMonitoringMessagePayload } from "./types";
 
 interface ProtocolMap {
-	[MessageType.MONITOR_BANDWIDTH_WITH_PERFORMANCE_API](
-		data: BandwidthMonitoringMessagePayload,
+	[MessageType.SEND_SHOPPING_SITE_DOM_CONTENT_TO_BACKGROUND](
+		data: Parameters<typeof sendQueryToPhindAi>,
 	): void;
 }
 

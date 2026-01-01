@@ -1,6 +1,6 @@
 /** biome-ignore-all lint/style/useLiteralEnumMembers: <I like it:p> */
 
-import { type ObjectToEnum, UrlSchema } from "@bandwidth-saver/shared";
+import { UrlSchema } from "@bandwidth-saver/shared";
 import * as v from "valibot";
 
 export enum ExtensionData {
@@ -18,49 +18,43 @@ export const getActiveTabUrl = async () => {
 	}
 };
 
-export const MessageType = {
-	/** Sends the bandwidth used from content scripts to the background */
-	MONITOR_BANDWIDTH_WITH_PERFORMANCE_API: "1",
-	/** Check if the url returns a valid response code */
-	VALIDATE_URL: "0",
+// export const StorageKey = {
+// 	/** Default settings for customizing compression */
+// 	DEFAULT_SETTINGS_COMPRESSION: "local:compression",
 
-	// MONITOR_BANDWIDTH_WITH_WEB_REQUEST = "2",
-} as const;
-export type MessageType = ObjectToEnum<typeof MessageType>;
+// 	/** Other default generic settings beyond the other classifications */
+// 	DEFAULT_SETTINGS_GENERAL: "local:general",
 
-export const StorageKey = {
-	/** Default settings for customizing compression */
-	DEFAULT_SETTINGS_COMPRESSION: "local:compression",
+// 	/** Default settings for the remote proxy that requests will be redirected to */
+// 	DEFAULT_SETTINGS_PROXY: "local:proxy",
 
-	/** Other default generic settings beyond the other classifications */
-	DEFAULT_SETTINGS_GENERAL: "local:general",
+// 	SCHEMA_VERSION: "local:schemaVersion",
 
-	/** Default settings for the remote proxy that requests will be redirected to */
-	DEFAULT_SETTINGS_PROXY: "local:proxy",
+// 	/** Site-specific settings for customizing compression */
+// 	SITE_SPECIFIC_SETTINGS_COMPRESSION_PREFIX: "local:siteScopeCompression-",
 
-	SCHEMA_VERSION: "local:schemaVersion",
+// 	/** Site-specific settings toggles scoped to a site */
+// 	SITE_SPECIFIC_SETTINGS_GENERAL_PREFIX: "local:siteScopeGeneral-",
 
-	/** Site-specific settings for customizing compression */
-	SITE_SPECIFIC_SETTINGS_COMPRESSION_PREFIX: "local:siteScopeCompression-",
+// 	/** Site-specific settings for the remote proxy that requests will be redirected to */
+// 	SITE_SPECIFIC_SETTINGS_PROXY_PREFIX: "local:siteScopeProxy-",
 
-	/** Site-specific settings toggles scoped to a site */
-	SITE_SPECIFIC_SETTINGS_GENERAL_PREFIX: "local:siteScopeGeneral-",
+// 	/** Device-specific statistics per site */
+// 	SITE_SPECIFIC_STATISTICS_PREFIX: "local:siteScopeStatistics-",
 
-	/** Site-specific settings for the remote proxy that requests will be redirected to */
-	SITE_SPECIFIC_SETTINGS_PROXY_PREFIX: "local:siteScopeProxy-",
+// 	/** Device-specific global statistics */
+// 	STATISTICS: "local:statistics",
+// } as const satisfies Record<string, StorageItemKey>;
+// export type StorageKey = ObjectToEnum<typeof StorageKey>;
 
-	/** Device-specific statistics per site */
-	SITE_SPECIFIC_STATISTICS_PREFIX: "local:siteScopeStatistics-",
+// export type SiteSpecificStorageKey =
+// 	| typeof StorageKey.SITE_SPECIFIC_SETTINGS_COMPRESSION_PREFIX
+// 	| typeof StorageKey.SITE_SPECIFIC_SETTINGS_GENERAL_PREFIX
+// 	| typeof StorageKey.SITE_SPECIFIC_SETTINGS_PROXY_PREFIX
+// 	| typeof StorageKey.SITE_SPECIFIC_STATISTICS_PREFIX;
 
-	/** Device-specific global statistics */
-	STATISTICS: "local:statistics",
-} as const satisfies Record<string, StorageItemKey>;
-export type StorageKey = ObjectToEnum<typeof StorageKey>;
+// export const UPDATE_INTERVAL_IN_MS = 1000 * 60 * 60;
 
-export type SiteSpecificStorageKey =
-	| typeof StorageKey.SITE_SPECIFIC_SETTINGS_COMPRESSION_PREFIX
-	| typeof StorageKey.SITE_SPECIFIC_SETTINGS_GENERAL_PREFIX
-	| typeof StorageKey.SITE_SPECIFIC_SETTINGS_PROXY_PREFIX
-	| typeof StorageKey.SITE_SPECIFIC_STATISTICS_PREFIX;
-
-export const UPDATE_INTERVAL_IN_MS = 1000 * 60 * 60;
+export enum MessageType {
+	SEND_SHOPPING_SITE_DOM_CONTENT_TO_BACKGROUND = "1",
+}
