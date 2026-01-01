@@ -1,21 +1,11 @@
-// Some shopping sites have the currently viewed product's data somewhere within a global
 /** biome-ignore-all lint/complexity/useLiteralKeys: <TS prefers "computed" key indexes> */
-
-import {
-	SCRAPED_PRODUCT_DATA_CLEANER,
-	SupportedSitePatterns,
-} from "@bandwidth-saver/shared";
+import { SCRAPED_PRODUCT_DATA_CLEANER } from "@bandwidth-saver/shared";
 import * as v from "valibot";
 import {
 	ProductDataRatingSchema,
 	ProductDataSchema,
-} from "../../../../shared/src/models/product";
-
-/** Either scrapes or sniffs js globals or smth */
-type ProductDataExtractor = (
-	// biome-ignore lint/suspicious/noExplicitAny: <To cover sites that add extra props to the window object>
-	siteWindow: Window & Record<string, any>,
-) => ProductDataSchema | null;
+} from "../../../../../shared/src/models/product";
+import type { ProductDataExtractor } from "./shared";
 
 const SPACE_SEPERATOR = " ";
 
@@ -31,7 +21,7 @@ const JumiaProductSchema = v.looseObject({
 	}),
 });
 
-const jumiaExtractor: ProductDataExtractor = (window) => {
+export const jumiaProductDataExtractor: ProductDataExtractor = (window) => {
 	try {
 		const { displayName, prices, rating } = v.parse(
 			JumiaProductSchema,
@@ -57,11 +47,3 @@ const jumiaExtractor: ProductDataExtractor = (window) => {
 		return null;
 	}
 };
-
-const SUPPORTED_SITE_PRODUCT_DATA_EXTRACTOR = {
-	[SupportedSitePatterns.JUMIA]: jumiaExtractor,
-} as const satisfies {
-	[key in SupportedSitePatterns]?: ProductDataExtractor;
-};
-
-export default SUPPORTED_SITE_PRODUCT_DATA_EXTRACTOR;
