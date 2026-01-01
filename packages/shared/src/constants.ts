@@ -18,7 +18,9 @@ export const PRODUCT_SITE_SCRAPING_QUERY_SELECTOR = {
 		rating: "[class*=customerReview_] p",
 	},
 } as const satisfies {
-	[key in SupportedSiteDomains]?: { [key in keyof ProductDataSchema]: string };
+	[key in SupportedSiteDomains]?: {
+		[key in keyof Omit<ProductDataSchema, "store">]: string;
+	};
 };
 
 export enum PRODUCT_RATING_RANGE {

@@ -1,9 +1,9 @@
 import * as v from "valibot";
-import { PRODUCT_RATING_RANGE } from "../constants";
+import { PRODUCT_RATING_RANGE } from "../../constants";
 import {
 	ProductDataRatingSchema,
 	type ProductDataSchema,
-} from "../models/product";
+} from "../../models/product";
 
 const PERIOD_OR_COMMA_REGEX = /,|\./;
 
@@ -25,20 +25,17 @@ function cleanRatingString(ratingStr: string): ProductDataRatingSchema {
 	return v.parse(ProductDataRatingSchema, actualRating);
 }
 
-function cleanCurrencyString(currencyString: string) {
-	return currencyString;
-}
-
-function cleanCurrencyName(name: string) {
-	return name;
+function genericCleaner(str: string): string {
+	return str.trim();
 }
 
 /** For cleaning and extracting proper data from scraped strings */
 export const SCRAPED_PRODUCT_DATA_CLEANER = {
-	currency: cleanCurrencyString,
-	name: cleanCurrencyName,
+	currency: genericCleaner,
+	name: genericCleaner,
 	price: cleanPriceString,
 	rating: cleanRatingString,
+	store: genericCleaner,
 } as const satisfies {
 	[key in keyof ProductDataSchema]: (strToClean: string) => unknown;
 };
