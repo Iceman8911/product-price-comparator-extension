@@ -1,5 +1,8 @@
 /** biome-ignore-all lint/complexity/useLiteralKeys: <TS prefers "computed" key indexes> */
-import { SCRAPED_PRODUCT_DATA_CLEANER } from "@bandwidth-saver/shared";
+import {
+	fixCaughtErrorType,
+	SCRAPED_PRODUCT_DATA_CLEANER,
+} from "@bandwidth-saver/shared";
 import * as v from "valibot";
 import {
 	ProductDataRatingSchema,
@@ -42,7 +45,7 @@ export const jumiaProductDataExtractor: ProductDataExtractor = (window) => {
 
 		return v.parse(ProductDataSchema, productData);
 	} catch (e) {
-		console.warn("Jumia extraction failed with error:", e);
+		console.warn("Jumia extraction failed with error:", fixCaughtErrorType(e));
 
 		return null;
 	}

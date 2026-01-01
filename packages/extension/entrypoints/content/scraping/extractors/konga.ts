@@ -1,5 +1,6 @@
 /** biome-ignore-all lint/complexity/useLiteralKeys: <TS prefers "computed" key indexes> */
 
+import { fixCaughtErrorType } from "@bandwidth-saver/shared";
 import { getCurrency } from "locale-currency";
 import * as v from "valibot";
 import {
@@ -36,7 +37,7 @@ export const kongaProductDataExtractor: ProductDataExtractor = (window) => {
 
 		return v.parse(ProductDataSchema, productData);
 	} catch (e) {
-		console.warn("Konga extraction failed with error:", e);
+		console.warn("Konga extraction failed with error:", fixCaughtErrorType(e));
 
 		return null;
 	}
