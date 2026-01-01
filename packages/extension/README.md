@@ -16,3 +16,8 @@ The aim of this extension is allow users get the cheapest and most reliable prod
 - This will be done with a floating icon injected into the active tab that'll activate the process. Accessing the popup will do similar
 
 Now of course, there are two ways this can be done; on the client device, optionally using tensorflow models or on a remote server. The client-mode will certainly have it's warts :p
+
+### How it'd scrape the shopping site
+
+- Most shopping sites may have a global variable attached to the window containing the currently viewed product data. This will give the most accurate data but will not work generally.
+- For general cases, fallback to regular DOM cleaning / screenshotting and use an external model to parse it.
