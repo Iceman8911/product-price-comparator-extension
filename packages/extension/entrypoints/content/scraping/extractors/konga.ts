@@ -15,7 +15,12 @@ import type { ProductDataExtractor } from "./shared";
 
 const STORE_NAME = "Konga";
 
+const KONGA_CLOUDINARY_OPTIMIZER_IMAGE_PREFIX =
+	"https://www-konga-com-res.cloudinary.com/image/upload/f_auto,fl_lossy,dpr_auto,q_auto,w_3840/media/catalog/product";
+
 const KongaProductSchema = v.looseObject({
+	/** Just the ending price of the actual url, e.g "/Z/H/_1693385527.png" */
+	image_thumbnail: v.string(),
 	name: v.string(),
 	price: v.number(),
 	product_rating: v.looseObject({
@@ -26,13 +31,14 @@ const KongaProductSchema = v.looseObject({
 });
 
 const windowGlobalExtractor: ProductDataExtractor = (window) => {
-	const { name, price, product_rating } = v.parse(
+	const { name, price, product_rating, image_thumbnail } = v.parse(
 		KongaProductSchema,
 		window["__NEXT_DATA__"].props.initialProps.pageProps.data.product,
 	);
 
 	const productData = {
 		currency: getCurrency(getUserLanguage()) ?? "",
+		imgSrc: `${KONGA_CLOUDINARY_OPTIMIZER_IMAGE_PREFIX}${image_thumbnail}`,
 		name,
 		price,
 		rating: product_rating.quality.average,
@@ -55,14 +61,26 @@ const documentScraperExtractor: ProductDataExtractor = ({ document }) => {
 	const scrapedRating = document.querySelector(
 		"[class*=customerReview_] p",
 	)?.textContent;
+	const scrapedImgUrl = (
+		document.querySelector("img[class*=asset_imageContain]") as
+			| HTMLImageElement
+			| undefined
+	)?.src;
 
-	if (!scrapedCurrency || !scrapedName || !scrapedPrice || !scrapedRating) {
+	if (
+		!scrapedCurrency ||
+		!scrapedName ||
+		!scrapedPrice ||
+		!scrapedRating ||
+		!scrapedImgUrl
+	) {
 		console.warn(
 			"Undefined data in one of the variables:",
 			scrapedCurrency,
 			scrapedName,
 			scrapedPrice,
 			scrapedRating,
+			scrapedImgUrl,
 		);
 
 		return null;
@@ -70,6 +88,7 @@ const documentScraperExtractor: ProductDataExtractor = ({ document }) => {
 
 	const productData = {
 		currency: SCRAPED_PRODUCT_DATA_CLEANER.currency(scrapedCurrency),
+		imgSrc: SCRAPED_PRODUCT_DATA_CLEANER.imgSrc(scrapedImgUrl),
 		name: SCRAPED_PRODUCT_DATA_CLEANER.name(scrapedName),
 		price: SCRAPED_PRODUCT_DATA_CLEANER.price(scrapedPrice),
 		rating: SCRAPED_PRODUCT_DATA_CLEANER.rating(scrapedRating),
