@@ -1,5 +1,7 @@
 import * as v from "valibot";
+import PlaceholderImg from "../assets/placeholder.webp";
 import { PRODUCT_RATING_RANGE } from "../constants";
+import { UrlSchema } from "./shared";
 
 export const ProductDataRatingSchema = v.pipe(
 	v.number(),
@@ -13,6 +15,8 @@ export type ProductDataRatingSchema = v.InferOutput<
 export const ProductDataSchema = v.object({
 	/** "$" */
 	currency: v.string(),
+	/** The image to show when previewing */
+	imgSrc: v.nullable(UrlSchema, PlaceholderImg),
 	name: v.string(),
 	/** Effective price.
 	 *
