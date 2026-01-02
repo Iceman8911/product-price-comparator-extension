@@ -102,7 +102,10 @@ export const kongaProductDataExtractor: ProductDataExtractor = (window) => {
 	try {
 		return windowGlobalExtractor(window);
 	} catch (e) {
-		console.warn("Konga extraction failed with error:", fixCaughtErrorType(e));
+		console.warn(
+			"Konga window data extraction failed with error:",
+			fixCaughtErrorType(e),
+		);
 
 		try {
 			return documentScraperExtractor(window);
