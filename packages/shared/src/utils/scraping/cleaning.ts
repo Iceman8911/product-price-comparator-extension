@@ -7,11 +7,15 @@ import {
 } from "../../models/product";
 import { UrlSchema } from "../../models/shared";
 
+function genericCleaner(str: string): string {
+	return str.trim();
+}
+
 const PERIOD_OR_COMMA_REGEX = /,|\./;
 
 /** For cleaning stuff like "1,234,566" */
 function cleanPriceString(priceStr: string): number {
-	return Number(priceStr.replaceAll(PERIOD_OR_COMMA_REGEX, ""));
+	return Number(genericCleaner(priceStr).replaceAll(PERIOD_OR_COMMA_REGEX, ""));
 }
 
 const RATING_SEPERATOR = "/";
@@ -20,15 +24,11 @@ function cleanRatingString(ratingStr: string): ProductDataRatingSchema {
 	const [
 		numerator = PRODUCT_RATING_RANGE.MIN,
 		denominator = PRODUCT_RATING_RANGE.MAX,
-	] = ratingStr.split(RATING_SEPERATOR).map(Number);
+	] = genericCleaner(ratingStr).split(RATING_SEPERATOR).map(Number);
 
 	const actualRating = (numerator / denominator) * PRODUCT_RATING_RANGE.MAX;
 
 	return v.parse(ProductDataRatingSchema, actualRating);
-}
-
-function genericCleaner(str: string): string {
-	return str.trim();
 }
 
 function cleanImgSrcString(imgSrc: string): UrlSchema {
