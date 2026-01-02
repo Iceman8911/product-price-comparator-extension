@@ -12,6 +12,7 @@ import {
 import type { ProductDataExtractor } from "./shared";
 
 const SPACE_SEPERATOR = " ";
+const STORE_NAME = "Jumia";
 
 const JumiaProductSchema = v.looseObject({
 	/** This includes the brand and name, e.g "XIAOMI REDMI A5 -  6.88   4GB RAM/128GB ROM  -- BLACK" instead of "REDMI A5 -  6.88   4GB RAM/128GB ROM  -- BLACK" */
@@ -26,30 +27,107 @@ const JumiaProductSchema = v.looseObject({
 	}),
 });
 
-export const jumiaProductDataExtractor: ProductDataExtractor = (window) => {
-	try {
-		const { displayName, prices, rating, image } = v.parse(
-			JumiaProductSchema,
-			window["__STORE__"].products[0],
+const windowDataExtractor: ProductDataExtractor = (window) => {
+	const { displayName, prices, rating, image } = v.parse(
+		JumiaProductSchema,
+		window["__STORE__"].products[0],
+	);
+
+	const [currency, dirtyPrice] = prices.price.split(SPACE_SEPERATOR);
+
+	if (!currency || !dirtyPrice) return null;
+
+	const productData = {
+		currency,
+		imgSrc: image,
+		name: displayName,
+		price: SCRAPED_PRODUCT_DATA_CLEANER.price(dirtyPrice),
+		rating: rating.average,
+		store: STORE_NAME,
+	} as const satisfies ProductDataSchema;
+
+	return v.parse(ProductDataSchema, productData);
+};
+
+const documentScraperExtractor: ProductDataExtractor = ({ document }) => {
+	/** There's a lot of useful data attributes on this :D */
+	const hiddenDataForm = document.querySelector("form#wishlist");
+
+	const scrapedNameFromForm = `${hiddenDataForm?.getAttribute("data-ga4-item_brand") ?? ""}${SPACE_SEPERATOR}${hiddenDataForm?.getAttribute("data-ga4-item_name") ?? ""}`;
+	const scrapedName =
+		scrapedNameFromForm !== SPACE_SEPERATOR
+			? scrapedNameFromForm
+			: document.querySelector("h1")?.textContent;
+
+	/** "$ 12,466" */
+	const [scrapedCurrency, scrapedPrice] =
+		document
+			.querySelector("[data-price]")
+			?.textContent.split(SPACE_SEPERATOR) ?? "";
+	/** '4.8 out of 5' */
+	const [scrapedRating] =
+		(
+			hiddenDataForm?.getAttribute("data-gtm-dimension27") ??
+			document.querySelector(".stars")?.textContent
+		)?.split(SPACE_SEPERATOR) ?? "";
+
+	const scrapedImgUrl =
+		hiddenDataForm?.getAttribute("data-moengage-product_image") ??
+		(
+			document.querySelector("img[alt^=product_image_name]") as
+				| HTMLImageElement
+				| undefined
+		)?.src;
+
+	if (
+		!scrapedCurrency ||
+		!scrapedName ||
+		!scrapedPrice ||
+		!scrapedRating ||
+		!scrapedImgUrl
+	) {
+		console.warn(
+			"Undefined data in one of the variables:",
+			scrapedCurrency,
+			scrapedName,
+			scrapedPrice,
+			scrapedRating,
+			scrapedImgUrl,
 		);
 
-		const [currency, dirtyPrice] = prices.price.split(SPACE_SEPERATOR);
-
-		if (!currency || !dirtyPrice) return null;
-
-		const productData = {
-			currency,
-			imgSrc: image,
-			name: displayName,
-			price: SCRAPED_PRODUCT_DATA_CLEANER.price(dirtyPrice),
-			rating: rating.average,
-			store: "Jumia",
-		} as const satisfies ProductDataSchema;
-
-		return v.parse(ProductDataSchema, productData);
-	} catch (e) {
-		console.warn("Jumia extraction failed with error:", fixCaughtErrorType(e));
-
 		return null;
+	}
+
+	const productData = {
+		currency: SCRAPED_PRODUCT_DATA_CLEANER.currency(scrapedCurrency),
+		imgSrc: SCRAPED_PRODUCT_DATA_CLEANER.imgSrc(scrapedImgUrl),
+		name: SCRAPED_PRODUCT_DATA_CLEANER.name(scrapedName),
+		price: SCRAPED_PRODUCT_DATA_CLEANER.price(scrapedPrice),
+		rating: SCRAPED_PRODUCT_DATA_CLEANER.rating(scrapedRating),
+		store: STORE_NAME,
+	} as const satisfies ProductDataSchema;
+
+	return v.parse(ProductDataSchema, productData);
+};
+
+export const jumiaProductDataExtractor: ProductDataExtractor = (window) => {
+	try {
+		return windowDataExtractor(window);
+	} catch (e) {
+		console.warn(
+			"Jumia window data extraction failed with error:",
+			fixCaughtErrorType(e),
+		);
+
+		try {
+			return documentScraperExtractor(window);
+		} catch (e) {
+			console.warn(
+				"Jumia scraper extraction failed with error:",
+				fixCaughtErrorType(e),
+			);
+
+			return null;
+		}
 	}
 };
