@@ -1,9 +1,6 @@
 /** biome-ignore-all lint/complexity/useLiteralKeys: <TS prefers "computed" key indexes> */
 
-import {
-	fixCaughtErrorType,
-	SCRAPED_PRODUCT_DATA_CLEANER,
-} from "@bandwidth-saver/shared";
+import { SCRAPED_PRODUCT_DATA_CLEANER } from "@bandwidth-saver/shared";
 import { getCurrency } from "locale-currency";
 import * as v from "valibot";
 import {
@@ -11,7 +8,10 @@ import {
 	ProductDataSchema,
 } from "../../../../../shared/src/models/product";
 import { getUserLanguage } from "../../shared";
-import type { ProductDataExtractor } from "./shared";
+import {
+	createCombinedProductDataExtractor,
+	type ProductDataExtractor,
+} from "./shared";
 
 const STORE_NAME = "Konga";
 
@@ -98,24 +98,8 @@ const documentScraperExtractor: ProductDataExtractor = ({ document }) => {
 	return v.parse(ProductDataSchema, productData);
 };
 
-export const kongaProductDataExtractor: ProductDataExtractor = (window) => {
-	try {
-		return windowGlobalExtractor(window);
-	} catch (e) {
-		console.warn(
-			"Konga window data extraction failed with error:",
-			fixCaughtErrorType(e),
-		);
-
-		try {
-			return documentScraperExtractor(window);
-		} catch (e) {
-			console.warn(
-				"Konga scraper extraction failed with error:",
-				fixCaughtErrorType(e),
-			);
-
-			return null;
-		}
-	}
-};
+export const kongaProductDataExtractor = createCombinedProductDataExtractor(
+	STORE_NAME,
+	windowGlobalExtractor,
+	documentScraperExtractor,
+);

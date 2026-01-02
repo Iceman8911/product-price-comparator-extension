@@ -1,6 +1,5 @@
 /** biome-ignore-all lint/complexity/useLiteralKeys: <TS prefers "computed" key indexes> */
 import {
-	fixCaughtErrorType,
 	SCRAPED_PRODUCT_DATA_CLEANER,
 	UrlSchema,
 } from "@bandwidth-saver/shared";
@@ -9,7 +8,10 @@ import {
 	ProductDataRatingSchema,
 	ProductDataSchema,
 } from "../../../../../shared/src/models/product";
-import type { ProductDataExtractor } from "./shared";
+import {
+	createCombinedProductDataExtractor,
+	type ProductDataExtractor,
+} from "./shared";
 
 const SPACE_SEPERATOR = " ";
 const STORE_NAME = "Jumia";
@@ -110,24 +112,8 @@ const documentScraperExtractor: ProductDataExtractor = ({ document }) => {
 	return v.parse(ProductDataSchema, productData);
 };
 
-export const jumiaProductDataExtractor: ProductDataExtractor = (window) => {
-	try {
-		return windowDataExtractor(window);
-	} catch (e) {
-		console.warn(
-			"Jumia window data extraction failed with error:",
-			fixCaughtErrorType(e),
-		);
-
-		try {
-			return documentScraperExtractor(window);
-		} catch (e) {
-			console.warn(
-				"Jumia scraper extraction failed with error:",
-				fixCaughtErrorType(e),
-			);
-
-			return null;
-		}
-	}
-};
+export const jumiaProductDataExtractor = createCombinedProductDataExtractor(
+	STORE_NAME,
+	windowDataExtractor,
+	documentScraperExtractor,
+);
