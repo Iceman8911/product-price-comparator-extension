@@ -8,6 +8,7 @@ import { NOT_AVAILABLE } from "../../../constants";
 import {
 	createCombinedProductDataExtractor,
 	createDocumentScraperProductDataExtractor,
+	extractCurrencyFromJsonString,
 	type ProductDataExtractor,
 } from "./shared";
 
@@ -37,7 +38,9 @@ const windowGlobalExtractor: ProductDataExtractor = (window) => {
 	);
 
 	const productData = {
-		currency: NOT_AVAILABLE,
+		currency:
+			extractCurrencyFromJsonString(JSON.stringify(windowData)) ??
+			NOT_AVAILABLE,
 		imgSrc: `${KONGA_CLOUDINARY_OPTIMIZER_IMAGE_PREFIX}${image_thumbnail}`,
 		name,
 		price,
