@@ -81,3 +81,36 @@ export function createCombinedProductDataExtractor(
 
 	return combinedExtractor;
 }
+
+/** From Grok and cleaned up cus I'm lazy */
+export function extractCurrencyFromJsonString(json: string): string | null {
+	// Match: non-digit/non-space/non-separator char(s) followed by number >=1000
+	// Captures the prefix (currency symbol) in group 1
+	// Handles: ₦60000, $1,000.00, €1.234,56, etc.
+	const regex = /([^\d\s.,])(?:\s*)(?:\d{1,3}(?:[.,]\d{3})*(?:\.\d+)?)/g;
+
+	let match: RegExpExecArray | null = regex.exec(json);
+	while (match !== null) {
+		const prefix = match[1];
+
+		if (!prefix) {
+			match = regex.exec(json);
+			continue;
+		}
+
+		// Extract the raw number part after the prefix
+		const numberPart = match[0]
+			.slice(prefix.length)
+			.replace(/\s/g, "")
+			.replace(/,/g, "");
+		const num = parseFloat(numberPart);
+
+		if (!Number.isNaN(num) && num >= 1000) {
+			return prefix;
+		}
+
+		match = regex.exec(json);
+	}
+
+	return null;
+}
