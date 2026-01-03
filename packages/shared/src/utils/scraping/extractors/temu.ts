@@ -55,6 +55,7 @@ const windowGlobalExtractor: ProductDataExtractor = async (window) => {
 		price: SCRAPED_PRODUCT_DATA_CLEANER.price(price),
 		rating: reviewScore,
 		store: STORE_NAME,
+		url: window.location.href,
 	} as const satisfies ProductDataSchema;
 
 	return v.parse(ProductDataSchema, productData);
@@ -79,7 +80,15 @@ const documentScraperExtractor = createDocumentScraperProductDataExtractor(
 				| undefined
 		)?.src;
 
-		return { currency, imgSrc, name, price, rating, store: STORE_NAME };
+		return {
+			currency,
+			imgSrc,
+			name,
+			price,
+			rating,
+			store: STORE_NAME,
+			url: document.location.href,
+		};
 	},
 );
 

@@ -75,6 +75,7 @@ const windowGlobalExtractor: ProductDataExtractor = async (window) => {
 		/** Jiji doesn't expose ratings anywhere */
 		rating: PRODUCT_RATING_RANGE.MIN,
 		store: STORE_NAME,
+		url: window.location.href,
 	} as const satisfies ProductDataSchema;
 
 	return v.parse(ProductDataSchema, productData);
@@ -102,6 +103,7 @@ const documentScraperExtractor = createDocumentScraperProductDataExtractor(
 			/** Jiji doesn't expose ratings anywhere */
 			rating: `${PRODUCT_RATING_RANGE.MIN}`,
 			store: STORE_NAME,
+			url: document.location.href,
 		};
 	},
 );

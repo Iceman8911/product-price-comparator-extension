@@ -26,5 +26,7 @@ export const ProductDataSchema = v.object({
 	rating: ProductDataRatingSchema,
 	/** "Konga", "Jumia", "Temu", "Ebay", etc */
 	store: v.string(),
+	/** Url to the actual product page */
+	url: UrlSchema,
 });
 export type ProductDataSchema = v.InferOutput<typeof ProductDataSchema>;

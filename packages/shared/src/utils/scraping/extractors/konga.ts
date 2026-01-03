@@ -46,6 +46,7 @@ const windowGlobalExtractor: ProductDataExtractor = async (window) => {
 		price,
 		rating: product_rating.quality.average,
 		store: STORE_NAME,
+		url: window.location.href,
 	} as const satisfies ProductDataSchema;
 
 	return v.parse(ProductDataSchema, productData);
@@ -69,7 +70,15 @@ const documentScraperExtractor = createDocumentScraperProductDataExtractor(
 				| undefined
 		)?.src;
 
-		return { currency, imgSrc, name, price, rating, store: STORE_NAME };
+		return {
+			currency,
+			imgSrc,
+			name,
+			price,
+			rating,
+			store: STORE_NAME,
+			url: document.location.href,
+		};
 	},
 );
 

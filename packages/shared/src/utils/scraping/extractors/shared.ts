@@ -20,10 +20,10 @@ export function createDocumentScraperProductDataExtractor(
 	const documentScraperExtractor: ProductDataExtractor = async ({
 		document,
 	}) => {
-		const { currency, imgSrc, name, price, rating, store } =
+		const { currency, imgSrc, name, price, rating, store, url } =
 			productDataCallback(document);
 
-		if (!currency || !name || !price || !rating || !imgSrc) {
+		if (!currency || !name || !price || !rating || !imgSrc || !url) {
 			console.warn(
 				"Undefined data in one of the variables:",
 				currency,
@@ -31,6 +31,7 @@ export function createDocumentScraperProductDataExtractor(
 				price,
 				rating,
 				imgSrc,
+				url,
 			);
 
 			return null;
@@ -43,6 +44,7 @@ export function createDocumentScraperProductDataExtractor(
 			price: SCRAPED_PRODUCT_DATA_CLEANER.price(price),
 			rating: SCRAPED_PRODUCT_DATA_CLEANER.rating(rating),
 			store: store ?? NOT_AVAILABLE,
+			url: SCRAPED_PRODUCT_DATA_CLEANER.url(url),
 		} as const satisfies ProductDataSchema;
 
 		return v.parse(ProductDataSchema, productData);

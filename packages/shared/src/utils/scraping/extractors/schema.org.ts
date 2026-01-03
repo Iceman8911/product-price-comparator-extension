@@ -151,6 +151,9 @@ export const schemaOrgProductDataExtractor: ProductDataExtractor = async ({
 			`${schemaRating ?? PRODUCT_RATING_RANGE.MIN}`,
 		),
 		store: site ?? author,
+		url: SCRAPED_PRODUCT_DATA_CLEANER.url(
+			schemaDocumentUrl ?? document.location.href,
+		),
 	};
 
 	return v.parse(ProductDataSchema, extractedProductData);

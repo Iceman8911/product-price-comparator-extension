@@ -31,7 +31,7 @@ function cleanRatingString(ratingStr: string): ProductDataRatingSchema {
 	return v.parse(ProductDataRatingSchema, actualRating);
 }
 
-function cleanImgSrcString(imgSrc: string): UrlSchema {
+function cleanUrlString(imgSrc: string): UrlSchema {
 	try {
 		return v.parse(UrlSchema, genericCleaner(imgSrc));
 	} catch {
@@ -48,11 +48,12 @@ function cleanImgSrcString(imgSrc: string): UrlSchema {
 /** For cleaning and extracting proper data from scraped strings */
 export const SCRAPED_PRODUCT_DATA_CLEANER = {
 	currency: genericCleaner,
-	imgSrc: cleanImgSrcString,
+	imgSrc: cleanUrlString,
 	name: genericCleaner,
 	price: cleanPriceString,
 	rating: cleanRatingString,
 	store: genericCleaner,
+	url: cleanUrlString,
 } as const satisfies {
 	[key in keyof ProductDataSchema]: (strToClean: string) => unknown;
 };
