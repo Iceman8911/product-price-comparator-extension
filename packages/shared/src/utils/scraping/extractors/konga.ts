@@ -1,12 +1,10 @@
 /** biome-ignore-all lint/complexity/useLiteralKeys: <TS prefers "computed" key indexes> */
-
-import { getCurrency } from "locale-currency";
 import * as v from "valibot";
 import {
 	ProductDataRatingSchema,
 	ProductDataSchema,
 } from "../../../../../shared/src/models/product";
-import { getUserLanguage } from "../../shared";
+import { NOT_AVAILABLE } from "../../../constants";
 import {
 	createCombinedProductDataExtractor,
 	createDocumentScraperProductDataExtractor,
@@ -31,13 +29,15 @@ const KongaProductSchema = v.looseObject({
 });
 
 const windowGlobalExtractor: ProductDataExtractor = (window) => {
+	const windowData = window["__NEXT_DATA__"];
+
 	const { name, price, product_rating, image_thumbnail } = v.parse(
 		KongaProductSchema,
-		window["__NEXT_DATA__"].props.initialProps.pageProps.data.product,
+		windowData.props.initialProps.pageProps.data.product,
 	);
 
 	const productData = {
-		currency: getCurrency(getUserLanguage()) ?? "",
+		currency: NOT_AVAILABLE,
 		imgSrc: `${KONGA_CLOUDINARY_OPTIMIZER_IMAGE_PREFIX}${image_thumbnail}`,
 		name,
 		price,
