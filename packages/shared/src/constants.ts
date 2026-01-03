@@ -29,3 +29,5 @@ export enum PRODUCT_RATING_RANGE {
 	MIN = 0,
 	MAX = 5,
 }
+
+export const NOT_AVAILABLE = "N/A";
