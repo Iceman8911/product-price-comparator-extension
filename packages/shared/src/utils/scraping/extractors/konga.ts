@@ -29,7 +29,7 @@ const KongaProductSchema = v.looseObject({
 	}),
 });
 
-const windowGlobalExtractor: ProductDataExtractor = (window) => {
+const windowGlobalExtractor: ProductDataExtractor = async (window) => {
 	const windowData = window["__NEXT_DATA__"];
 
 	const { name, price, product_rating, image_thumbnail } = v.parse(

@@ -10,14 +10,16 @@ import { ProductDataSchema } from "../../../../../shared/src/models/product";
 export type ProductDataExtractor = (
 	// biome-ignore lint/suspicious/noExplicitAny: <To cover sites that add extra props to the window object>
 	siteWindow: Window & Record<string, any>,
-) => ProductDataSchema | null;
+) => Promise<ProductDataSchema | null>;
 
 export function createDocumentScraperProductDataExtractor(
 	productDataCallback: (document: Document) => {
 		[key in keyof ProductDataSchema]: string | undefined;
 	},
 ): ProductDataExtractor {
-	const documentScraperExtractor: ProductDataExtractor = ({ document }) => {
+	const documentScraperExtractor: ProductDataExtractor = async ({
+		document,
+	}) => {
 		const { currency, imgSrc, name, price, rating, store } =
 			productDataCallback(document);
 
@@ -54,7 +56,7 @@ export function createCombinedProductDataExtractor(
 	windowGlobalExtractor: ProductDataExtractor,
 	documentScraperExtractor: ProductDataExtractor,
 ): ProductDataExtractor {
-	const combinedExtractor: ProductDataExtractor = (window) => {
+	const combinedExtractor: ProductDataExtractor = async (window) => {
 		try {
 			return windowGlobalExtractor(window) ?? documentScraperExtractor(window);
 		} catch (e) {
