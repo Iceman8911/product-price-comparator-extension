@@ -1,5 +1,6 @@
 import {
 	fixCaughtErrorType,
+	NOT_AVAILABLE,
 	SCRAPED_PRODUCT_DATA_CLEANER,
 } from "@bandwidth-saver/shared";
 import * as v from "valibot";
@@ -11,52 +12,35 @@ export type ProductDataExtractor = (
 	siteWindow: Window & Record<string, any>,
 ) => ProductDataSchema | null;
 
-type GetStringFromDocumentScraping = (document: Document) => string | undefined;
-type ProductDataDocumentScraperCallbacks = {
-	[key in `get${Capitalize<
-		keyof Omit<ProductDataSchema, "store">
-	>}`]: GetStringFromDocumentScraping;
-};
-
 export function createDocumentScraperProductDataExtractor(
-	arg: { storeName: string } & ProductDataDocumentScraperCallbacks,
+	productDataCallback: (document: Document) => {
+		[key in keyof ProductDataSchema]: string | undefined;
+	},
 ): ProductDataExtractor {
-	const { getCurrency, getImgSrc, getName, getPrice, getRating, storeName } =
-		arg;
-
 	const documentScraperExtractor: ProductDataExtractor = ({ document }) => {
-		const scrapedName = getName(document);
-		const scrapedCurrency = getCurrency(document);
-		const scrapedPrice = getPrice(document);
-		const scrapedRating = getRating(document);
-		const scrapedImgSrc = getImgSrc(document);
+		const { currency, imgSrc, name, price, rating, store } =
+			productDataCallback(document);
 
-		if (
-			!scrapedCurrency ||
-			!scrapedName ||
-			!scrapedPrice ||
-			!scrapedRating ||
-			!scrapedImgSrc
-		) {
+		if (!currency || !name || !price || !rating || !imgSrc) {
 			console.warn(
 				"Undefined data in one of the variables:",
-				scrapedCurrency,
-				scrapedName,
-				scrapedPrice,
-				scrapedRating,
-				scrapedImgSrc,
+				currency,
+				name,
+				price,
+				rating,
+				imgSrc,
 			);
 
 			return null;
 		}
 
 		const productData = {
-			currency: SCRAPED_PRODUCT_DATA_CLEANER.currency(scrapedCurrency),
-			imgSrc: SCRAPED_PRODUCT_DATA_CLEANER.imgSrc(scrapedImgSrc),
-			name: SCRAPED_PRODUCT_DATA_CLEANER.name(scrapedName),
-			price: SCRAPED_PRODUCT_DATA_CLEANER.price(scrapedPrice),
-			rating: SCRAPED_PRODUCT_DATA_CLEANER.rating(scrapedRating),
-			store: storeName,
+			currency: SCRAPED_PRODUCT_DATA_CLEANER.currency(currency),
+			imgSrc: SCRAPED_PRODUCT_DATA_CLEANER.imgSrc(imgSrc),
+			name: SCRAPED_PRODUCT_DATA_CLEANER.name(name),
+			price: SCRAPED_PRODUCT_DATA_CLEANER.price(price),
+			rating: SCRAPED_PRODUCT_DATA_CLEANER.rating(rating),
+			store: store ?? NOT_AVAILABLE,
 		} as const satisfies ProductDataSchema;
 
 		return v.parse(ProductDataSchema, productData);
