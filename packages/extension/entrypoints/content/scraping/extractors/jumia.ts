@@ -10,6 +10,7 @@ import {
 } from "../../../../../shared/src/models/product";
 import {
 	createCombinedProductDataExtractor,
+	createDocumentScraperProductDataExtractor,
 	type ProductDataExtractor,
 } from "./shared";
 
@@ -51,66 +52,40 @@ const windowDataExtractor: ProductDataExtractor = (window) => {
 	return v.parse(ProductDataSchema, productData);
 };
 
-const documentScraperExtractor: ProductDataExtractor = ({ document }) => {
-	/** There's a lot of useful data attributes on this :D */
-	const hiddenDataForm = document.querySelector("form#wishlist");
+const documentScraperExtractor = createDocumentScraperProductDataExtractor(
+	(document) => {
+		/** There's a lot of useful data attributes on this :D */
+		const hiddenDataForm = document.querySelector("form#wishlist");
 
-	const scrapedNameFromForm = `${hiddenDataForm?.getAttribute("data-ga4-item_brand") ?? ""}${SPACE_SEPERATOR}${hiddenDataForm?.getAttribute("data-ga4-item_name") ?? ""}`;
-	const scrapedName =
-		scrapedNameFromForm !== SPACE_SEPERATOR
-			? scrapedNameFromForm
-			: document.querySelector("h1")?.textContent;
+		const scrapedNameFromForm = `${hiddenDataForm?.getAttribute("data-ga4-item_brand") ?? ""}${SPACE_SEPERATOR}${hiddenDataForm?.getAttribute("data-ga4-item_name") ?? ""}`;
+		const name =
+			scrapedNameFromForm !== SPACE_SEPERATOR
+				? scrapedNameFromForm
+				: document.querySelector("h1")?.textContent;
 
-	/** "$ 12,466" */
-	const [scrapedCurrency, scrapedPrice] =
-		document
-			.querySelector("[data-price]")
-			?.textContent.split(SPACE_SEPERATOR) ?? "";
-	/** '4.8 out of 5' */
-	const [scrapedRating] =
-		(
-			hiddenDataForm?.getAttribute("data-gtm-dimension27") ??
-			document.querySelector(".stars")?.textContent
-		)?.split(SPACE_SEPERATOR) ?? "";
+		/** "$ 12,466" */
+		const [currency, price] =
+			document
+				.querySelector("[data-price]")
+				?.textContent.split(SPACE_SEPERATOR) ?? "";
+		/** '4.8 out of 5' */
+		const [rating] =
+			(
+				hiddenDataForm?.getAttribute("data-gtm-dimension27") ??
+				document.querySelector(".stars")?.textContent
+			)?.split(SPACE_SEPERATOR) ?? "";
 
-	const scrapedImgUrl =
-		hiddenDataForm?.getAttribute("data-moengage-product_image") ??
-		(
-			document.querySelector("img[alt^=product_image_name]") as
-				| HTMLImageElement
-				| undefined
-		)?.src;
+		const imgSrc =
+			hiddenDataForm?.getAttribute("data-moengage-product_image") ??
+			(
+				document.querySelector("img[alt^=product_image_name]") as
+					| HTMLImageElement
+					| undefined
+			)?.src;
 
-	if (
-		!scrapedCurrency ||
-		!scrapedName ||
-		!scrapedPrice ||
-		!scrapedRating ||
-		!scrapedImgUrl
-	) {
-		console.warn(
-			"Undefined data in one of the variables:",
-			scrapedCurrency,
-			scrapedName,
-			scrapedPrice,
-			scrapedRating,
-			scrapedImgUrl,
-		);
-
-		return null;
-	}
-
-	const productData = {
-		currency: SCRAPED_PRODUCT_DATA_CLEANER.currency(scrapedCurrency),
-		imgSrc: SCRAPED_PRODUCT_DATA_CLEANER.imgSrc(scrapedImgUrl),
-		name: SCRAPED_PRODUCT_DATA_CLEANER.name(scrapedName),
-		price: SCRAPED_PRODUCT_DATA_CLEANER.price(scrapedPrice),
-		rating: SCRAPED_PRODUCT_DATA_CLEANER.rating(scrapedRating),
-		store: STORE_NAME,
-	} as const satisfies ProductDataSchema;
-
-	return v.parse(ProductDataSchema, productData);
-};
+		return { currency, imgSrc, name, price, rating, store: STORE_NAME };
+	},
+);
 
 export const jumiaProductDataExtractor = createCombinedProductDataExtractor(
 	STORE_NAME,

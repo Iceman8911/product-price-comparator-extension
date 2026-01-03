@@ -1,6 +1,5 @@
 /** biome-ignore-all lint/complexity/useLiteralKeys: <TS prefers "computed" key indexes> */
 
-import { SCRAPED_PRODUCT_DATA_CLEANER } from "@bandwidth-saver/shared";
 import { getCurrency } from "locale-currency";
 import * as v from "valibot";
 import {
@@ -10,6 +9,7 @@ import {
 import { getUserLanguage } from "../../shared";
 import {
 	createCombinedProductDataExtractor,
+	createDocumentScraperProductDataExtractor,
 	type ProductDataExtractor,
 } from "./shared";
 
@@ -48,55 +48,27 @@ const windowGlobalExtractor: ProductDataExtractor = (window) => {
 	return v.parse(ProductDataSchema, productData);
 };
 
-const documentScraperExtractor: ProductDataExtractor = ({ document }) => {
-	const scrapedCurrency = document.querySelector(
-		"[class*=priceBoxPrice] span",
-	)?.textContent;
-	const scrapedName = document.querySelector(
-		"[class*=productName]",
-	)?.textContent;
-	const scrapedPrice = document.querySelector(
-		"[class*=priceBoxPrice] div",
-	)?.textContent;
-	const scrapedRating = document.querySelector(
-		"[class*=customerReview_] p",
-	)?.textContent;
-	const scrapedImgUrl = (
-		document.querySelector("img[class*=asset_imageContain]") as
-			| HTMLImageElement
-			| undefined
-	)?.src;
+const documentScraperExtractor = createDocumentScraperProductDataExtractor(
+	(document) => {
+		const currency = document.querySelector(
+			"[class*=priceBoxPrice] span",
+		)?.textContent;
+		const name = document.querySelector("[class*=productName]")?.textContent;
+		const price = document.querySelector(
+			"[class*=priceBoxPrice] div",
+		)?.textContent;
+		const rating = document.querySelector(
+			"[class*=customerReview_] p",
+		)?.textContent;
+		const imgSrc = (
+			document.querySelector("img[class*=asset_imageContain]") as
+				| HTMLImageElement
+				| undefined
+		)?.src;
 
-	if (
-		!scrapedCurrency ||
-		!scrapedName ||
-		!scrapedPrice ||
-		!scrapedRating ||
-		!scrapedImgUrl
-	) {
-		console.warn(
-			"Undefined data in one of the variables:",
-			scrapedCurrency,
-			scrapedName,
-			scrapedPrice,
-			scrapedRating,
-			scrapedImgUrl,
-		);
-
-		return null;
-	}
-
-	const productData = {
-		currency: SCRAPED_PRODUCT_DATA_CLEANER.currency(scrapedCurrency),
-		imgSrc: SCRAPED_PRODUCT_DATA_CLEANER.imgSrc(scrapedImgUrl),
-		name: SCRAPED_PRODUCT_DATA_CLEANER.name(scrapedName),
-		price: SCRAPED_PRODUCT_DATA_CLEANER.price(scrapedPrice),
-		rating: SCRAPED_PRODUCT_DATA_CLEANER.rating(scrapedRating),
-		store: STORE_NAME,
-	} as const satisfies ProductDataSchema;
-
-	return v.parse(ProductDataSchema, productData);
-};
+		return { currency, imgSrc, name, price, rating, store: STORE_NAME };
+	},
+);
 
 export const kongaProductDataExtractor = createCombinedProductDataExtractor(
 	STORE_NAME,
