@@ -56,10 +56,12 @@ const ParsedVariantSchema = v.looseObject({
 });
 
 const SharedPropsBetweenProductAndProductGroupSchema = v.looseObject({
-	aggregateRating: v.looseObject({
-		/** "4.1" */
-		ratingValue: v.union([v.string(), v.number()]),
-	}),
+	aggregateRating: v.nullish(
+		v.looseObject({
+			/** "4.1" */
+			ratingValue: v.union([v.string(), v.number()]),
+		}),
+	),
 
 	/** Can be prepended to the name for better info */
 	brand: v.nullish(v.union([v.looseObject({ name: v.string() }), v.string()])),
@@ -201,7 +203,7 @@ export const schemaOrgProductDataExtractor: ProductDataExtractor = ({
 
 	if (v.is(ParsedProductSchema, possibleParsedProduct)) {
 		const {
-			aggregateRating: { ratingValue: schemaRating },
+			aggregateRating,
 			brand: schemaBrand,
 			image: schemaImage,
 			name: schemaName,
@@ -231,13 +233,13 @@ export const schemaOrgProductDataExtractor: ProductDataExtractor = ({
 			image: schemaImage,
 			name: schemaName,
 			price: schemaPrice,
-			rating: `${schemaRating ?? PRODUCT_RATING_RANGE.MIN}`,
+			rating: `${aggregateRating?.ratingValue ?? PRODUCT_RATING_RANGE.MIN}`,
 			store: site ?? author,
 			url: schemaDocumentUrl ?? document.location.href,
 		});
 	} else if (v.is(ParsedProductGroupSchema, possibleParsedProduct)) {
 		const {
-			aggregateRating: { ratingValue: schemaRating },
+			aggregateRating,
 			brand: schemaBrand,
 			image: schemaImage,
 			name: schemaName,
@@ -267,7 +269,7 @@ export const schemaOrgProductDataExtractor: ProductDataExtractor = ({
 			image: schemaImage,
 			name: schemaName,
 			price: schemaPrice,
-			rating: `${schemaRating ?? PRODUCT_RATING_RANGE.MIN}`,
+			rating: `${aggregateRating?.ratingValue ?? PRODUCT_RATING_RANGE.MIN}`,
 			store: site ?? author,
 			url: schemaDocumentUrl ?? document.location.href,
 		});
