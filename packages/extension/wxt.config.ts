@@ -12,6 +12,12 @@ export default defineConfig({
 		permissions: ["activeTab", "storage", "offscreen"],
 		short_name: "Product Price Optimiser",
 		version: "0.0.1",
+		web_accessible_resources: [
+			{
+				matches: ["<all_urls>"],
+				resources: ["/extract-product-data-from-window.js"],
+			},
+		],
 	},
 	modules: ["@wxt-dev/module-solid", "@wxt-dev/auto-icons"],
 	vite: () => ({
