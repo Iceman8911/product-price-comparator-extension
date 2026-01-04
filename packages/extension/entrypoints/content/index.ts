@@ -1,43 +1,18 @@
-import { Readability } from "@mozilla/readability";
-import { toJsonSchema } from "@valibot/to-json-schema";
-import * as v from "valibot";
+import { extractProductDataFromWindow } from "@bandwidth-saver/shared";
 import { sendQueryToPhindAiViaBackgroundWorker } from "@/utils/phind";
-import { ProductDataSchema } from "../../../shared/src/models/product";
-
-const ProductDataJsonSchema = toJsonSchema(ProductDataSchema);
-
-async function sendShoppingDomContentToBackground() {
-	const bodyQuery = {
-		query: `If a product in the given DOM text exists, return a JSON object that exactly matches the valibot json schema: ${JSON.stringify(ProductDataJsonSchema)}.
-
-			Otherwise return \`null\`.
-
-			Here's the dom text:
-
-			${document.querySelector("body")?.outerHTML}`,
-		search: false,
-	} as const;
-
-	const res = await sendQueryToPhindAiViaBackgroundWorker(bodyQuery);
-
-	try {
-		return v.parse(ProductDataSchema, JSON.parse(res));
-	} catch (e) {
-		console.warn(e);
-		console.warn("But the sent data was,", bodyQuery);
-
-		return null;
-	}
-}
 
 export default defineContentScript({
 	async main() {
-		document.addEventListener("DOMContentLoaded", () => {
-			sendShoppingDomContentToBackground();
+		document.addEventListener("DOMContentLoaded", async () => {
+			const product = await extractProductDataFromWindow([
+				window,
+				(query) =>
+					sendQueryToPhindAiViaBackgroundWorker({ query, search: false }),
+			]);
 
-			console.log("Readability!:", new Readability(document, {}).parse());
+			console.log("Product is:", product);
 		});
 	},
 	matches: ["<all_urls>"],
-	runAt: "document_idle",
+	runAt: "document_start",
 });
