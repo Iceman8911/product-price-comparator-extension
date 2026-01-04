@@ -11,7 +11,7 @@ function genericCleaner(str: string): string {
 	return str.trim();
 }
 
-const PERIOD_OR_COMMA_REGEX = /,|\./;
+const PERIOD_OR_COMMA_REGEX = /,|\./g;
 
 /** For cleaning stuff like "1,234,566" */
 function cleanPriceString(priceStr: string): number {
