@@ -1,6 +1,6 @@
 /** biome-ignore-all lint/style/useLiteralEnumMembers: <I like it:p> */
 
-import { getRandomUUID, UrlSchema } from "@bandwidth-saver/shared";
+import { UrlSchema } from "@bandwidth-saver/shared";
 import * as v from "valibot";
 
 export enum ExtensionData {
@@ -59,4 +59,4 @@ export enum MessageType {
 	SEND_PROMPT_TO_PHIND_AI_VIA_BACKGROUND_WORKER = "1",
 }
 
-export const EXTENSION_ID = getRandomUUID();
+export const EXTENSION_ID = "Product Price Comparator - Iceman8911";
