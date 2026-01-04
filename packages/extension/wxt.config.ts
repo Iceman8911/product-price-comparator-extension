@@ -9,7 +9,7 @@ export default defineConfig({
 		description:
 			"Product comparison extension for getting the best deals when shopping.",
 		name: "Bandwidth Saver & Monitor",
-		permissions: ["activeTab", "storage"],
+		permissions: ["activeTab", "storage", "offscreen"],
 		short_name: "Product Price Optimiser",
 		version: "0.0.1",
 	},
