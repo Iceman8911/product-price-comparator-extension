@@ -30,7 +30,7 @@ const JumiaProductSchema = v.looseObject({
 	}),
 });
 
-const windowDataExtractor: ProductDataExtractor = async (window) => {
+const windowDataExtractor: ProductDataExtractor = (window) => {
 	const { displayName, prices, rating, image } = v.parse(
 		JumiaProductSchema,
 		window["__STORE__"].products[0],

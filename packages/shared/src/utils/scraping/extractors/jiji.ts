@@ -46,7 +46,7 @@ const JijiProductSchema = v.looseObject({
 	og_title: v.string(),
 });
 
-const windowGlobalExtractor: ProductDataExtractor = async (window) => {
+const windowGlobalExtractor: ProductDataExtractor = (window) => {
 	/** Should have a single key like `advert-item-dLNJCtqZV24v3qoyHp3OegUR` */
 	const windowData = window["useNuxtApp"]().payload.data;
 

@@ -38,7 +38,7 @@ const TemuProductSchema = v.looseObject({
 	review: v.looseObject({ reviewScore: ProductDataRatingSchema }),
 });
 
-const windowGlobalExtractor: ProductDataExtractor = async (window) => {
+const windowGlobalExtractor: ProductDataExtractor = (window) => {
 	const {
 		goods: {
 			goodsName,

@@ -184,7 +184,7 @@ const getProductDataFromScrapedSchemaOrgData = (arg: {
 	return v.parse(ProductDataSchema, extractedProductData);
 };
 
-export const schemaOrgProductDataExtractor: ProductDataExtractor = async ({
+export const schemaOrgProductDataExtractor: ProductDataExtractor = ({
 	document,
 }) => {
 	const { schemaOrgData, image, site, author, title } = new Defuddle(
