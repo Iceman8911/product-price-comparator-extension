@@ -49,8 +49,10 @@ const getDataCoalescerQueryString = (possibleInferredData: {
 
 export const llmProductDataExtractor = async (
 	window: Window,
-	llmQuerier: LlmQuery,
+	llmQuerier?: LlmQuery | undefined,
 ): Promise<ProductDataSchema | null> => {
+	if (!llmQuerier) return null;
+
 	const extracted = extractRelevantDomData(window.document);
 
 	if (!extracted) return null;
