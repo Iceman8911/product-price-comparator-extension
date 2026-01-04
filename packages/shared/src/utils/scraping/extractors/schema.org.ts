@@ -117,8 +117,11 @@ function findSchemaObjectWithProductData(
 		for (const value of json) {
 			if (v.is(ParsedProductOrProductGroupSchema, value)) return value;
 
-			if (v.is(JsonSchema, value))
-				return findSchemaObjectWithProductData(value);
+			if (v.is(JsonSchema, value)) {
+				const res = findSchemaObjectWithProductData(value);
+
+				if (res) return res;
+			}
 		}
 	} else {
 		if (v.is(ParsedProductOrProductGroupSchema, json)) return json;
@@ -126,8 +129,11 @@ function findSchemaObjectWithProductData(
 		for (const key in json) {
 			const value = json[key];
 
-			if (v.is(JsonSchema, value))
-				return findSchemaObjectWithProductData(value);
+			if (v.is(JsonSchema, value)) {
+				const res = findSchemaObjectWithProductData(value);
+
+				if (res) return res;
+			}
 		}
 	}
 
