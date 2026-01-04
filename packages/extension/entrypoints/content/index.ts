@@ -1,5 +1,6 @@
 import { MessageType } from "@/shared/constants";
-import { onWindowMessage } from "@/shared/messaging";
+import { onWindowMessage } from "@/shared/messaging/content-script";
+import { sendQueryToPhindAiViaBackgroundWorker } from "@/utils/phind/backgound-script";
 
 function registerPhindAiMessageResponderFromInjectedScript() {
 	onWindowMessage(
