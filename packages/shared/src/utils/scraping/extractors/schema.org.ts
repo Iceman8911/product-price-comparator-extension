@@ -62,7 +62,7 @@ const SharedPropsBetweenProductAndProductGroupSchema = v.looseObject({
 	}),
 
 	/** Can be prepended to the name for better info */
-	brand: v.nullable(v.union([v.looseObject({ name: v.string() }), v.string()])),
+	brand: v.nullish(v.union([v.looseObject({ name: v.string() }), v.string()])),
 
 	/** Image url */
 	image: ParsedImageSchema,
@@ -70,7 +70,7 @@ const SharedPropsBetweenProductAndProductGroupSchema = v.looseObject({
 	name: v.string(),
 
 	/** Site url */
-	url: v.nullable(UrlSchema),
+	url: v.nullish(UrlSchema),
 });
 
 const ParsedProductSchema = v.looseObject({
