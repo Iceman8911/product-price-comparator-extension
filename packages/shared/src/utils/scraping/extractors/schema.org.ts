@@ -8,26 +8,54 @@ import { UrlSchema } from "../../../models/shared";
 import { SCRAPED_PRODUCT_DATA_CLEANER } from "../cleaning";
 import type { ProductDataExtractor } from "./shared";
 
-const ExpectedProductTypeLiteral = "Product";
+const ProductTypeLiteral = "Product";
+const ProductGroupTypeLiteral = "ProductGroup";
 
-const ParsedProductTypeSchema = v.union([
-	v.literal(ExpectedProductTypeLiteral),
-	v.pipe(
-		v.array(v.string()),
-		v.check((arr) => arr.some((type) => type === ExpectedProductTypeLiteral)),
-	),
-]);
+const getSchemaOrgTypeSchema = <StringLiteral extends string>(
+	type: StringLiteral,
+) =>
+	v.union([
+		v.literal(type),
+		v.pipe(
+			v.array(v.string()),
+			v.check((arr) => arr.some((typeInArr) => typeInArr === type)),
+		),
+	]);
 
-const ParsedProductOfferSchema = v.looseObject({
+const ParsedProductTypeSchema = getSchemaOrgTypeSchema(ProductTypeLiteral);
+
+const ParsedProductGroupTypeSchema = getSchemaOrgTypeSchema(
+	ProductGroupTypeLiteral,
+);
+
+const ParsedSingleOfferSchema = v.looseObject({
 	/** "5970.00" */
 	price: v.string(),
 	/** "NGN" */
 	priceCurrency: v.string(),
 });
 
-const ParsedProductSchema = v.looseObject({
-	"@type": ParsedProductTypeSchema,
+const ParsedProductOfferSchema = v.union([
+	ParsedSingleOfferSchema,
+	v.array(ParsedSingleOfferSchema),
+]);
 
+const ParsedImageSchema = v.union([
+	v.string(),
+	v.array(v.string()),
+	v.looseObject({ contentUrl: v.array(v.string()) }),
+	v.looseObject({ url: v.string() }),
+]);
+
+const ParsedVariantSchema = v.looseObject({
+	"@type": v.literal(ProductTypeLiteral),
+	image: ParsedImageSchema,
+	name: v.optional(v.string()),
+	/** This is the most important one here */
+	offers: ParsedProductOfferSchema,
+});
+
+const SharedPropsBetweenProductAndProductGroupSchema = v.looseObject({
 	aggregateRating: v.looseObject({
 		/** "4.1" */
 		ratingValue: v.union([v.string(), v.number()]),
@@ -37,29 +65,41 @@ const ParsedProductSchema = v.looseObject({
 	brand: v.nullable(v.union([v.looseObject({ name: v.string() }), v.string()])),
 
 	/** Image url */
-	image: v.union([
-		v.string(),
-		v.array(v.string()),
-		v.looseObject({ contentUrl: v.array(v.string()) }),
-		v.looseObject({ url: v.string() }),
-	]),
+	image: ParsedImageSchema,
 
 	name: v.string(),
 
+	/** Site url */
+	url: v.nullable(UrlSchema),
+});
+
+const ParsedProductSchema = v.looseObject({
+	...SharedPropsBetweenProductAndProductGroupSchema.entries,
+
+	"@type": ParsedProductTypeSchema,
+
 	/** Rarely absent  */
-	offers: v.optional(
-		v.union([ParsedProductOfferSchema, v.array(ParsedProductOfferSchema)]),
-	),
+	offers: v.optional(ParsedProductOfferSchema),
 
 	/** Rarely present unless `offers` is unavailable: "5970.00" */
 	price: v.optional(v.string()),
 	/** Rarely present unless `offers` is unavailable:  "NGN" */
 	priceCurrency: v.optional(v.string()),
-
-	/** Site url */
-	url: v.nullable(UrlSchema),
 });
-type ParsedProductSchema = v.InferOutput<typeof ParsedProductSchema>;
+
+const ParsedProductGroupSchema = v.looseObject({
+	...SharedPropsBetweenProductAndProductGroupSchema.entries,
+	"@type": ParsedProductGroupTypeSchema,
+	hasVariant: v.array(ParsedVariantSchema),
+});
+
+const ParsedProductOrProductGroupSchema = v.union([
+	ParsedProductGroupSchema,
+	ParsedProductSchema,
+]);
+type ParsedProductOrProductGroupSchema = v.InferOutput<
+	typeof ParsedProductOrProductGroupSchema
+>;
 
 const JsonSchema = v.union([
 	v.record(v.string(), v.unknown()),
@@ -68,28 +108,81 @@ const JsonSchema = v.union([
 type JsonSchema = v.InferOutput<typeof JsonSchema>;
 
 /** A schema object representing a product; i.e `@type: "Product"` */
-function findSchemaObjectWithProductType(
+function findSchemaObjectWithProductData(
 	json: JsonSchema,
-): ParsedProductSchema | null {
+): ParsedProductOrProductGroupSchema | null {
 	if (Array.isArray(json)) {
 		for (const value of json) {
+			if (v.is(ParsedProductOrProductGroupSchema, value)) return value;
+
 			if (v.is(JsonSchema, value))
-				return findSchemaObjectWithProductType(value);
+				return findSchemaObjectWithProductData(value);
 		}
 	} else {
+		if (v.is(ParsedProductOrProductGroupSchema, json)) return json;
+
 		for (const key in json) {
 			const value = json[key];
 
-			if (key === "@type" && v.is(ParsedProductTypeSchema, value))
-				return v.parse(ParsedProductSchema, json);
-
 			if (v.is(JsonSchema, value))
-				return findSchemaObjectWithProductType(value);
+				return findSchemaObjectWithProductData(value);
 		}
 	}
 
 	return null;
 }
+
+const getProductDataFromScrapedSchemaOrgData = (arg: {
+	brand?: string | undefined;
+	currency: string;
+	image: ParsedProductOrProductGroupSchema["image"];
+	backupImage: string;
+	name: string;
+	backupName: string;
+	price: string;
+	rating: string;
+	store: string;
+	url: string;
+}): ProductDataSchema => {
+	const {
+		backupImage,
+		backupName,
+		brand,
+		currency,
+		image,
+		name,
+		price,
+		rating,
+		store,
+		url,
+	} = arg;
+
+	const extractedProductData: ProductDataSchema = {
+		currency: SCRAPED_PRODUCT_DATA_CLEANER.currency(currency),
+		imgSrc: SCRAPED_PRODUCT_DATA_CLEANER.imgSrc(
+			Array.isArray(image)
+				? (image[0] ?? backupImage)
+				: typeof image === "string"
+					? image
+					: "url" in image
+						? `${image.url}`
+						: (image.contentUrl[0] ?? backupImage),
+		),
+		name: SCRAPED_PRODUCT_DATA_CLEANER.name(
+			brand && name && !name.startsWith(brand)
+				? `${brand} ${name}`
+				: name
+					? name
+					: backupName,
+		),
+		price: SCRAPED_PRODUCT_DATA_CLEANER.price(price),
+		rating: SCRAPED_PRODUCT_DATA_CLEANER.rating(rating),
+		store: SCRAPED_PRODUCT_DATA_CLEANER.store(store),
+		url: SCRAPED_PRODUCT_DATA_CLEANER.url(url),
+	};
+
+	return v.parse(ProductDataSchema, extractedProductData);
+};
 
 export const schemaOrgProductDataExtractor: ProductDataExtractor = async ({
 	document,
@@ -101,60 +194,81 @@ export const schemaOrgProductDataExtractor: ProductDataExtractor = async ({
 	// No schemaOrgData so there's not much use going further
 	if (!schemaOrgData) return null;
 
-	const possibleParsedProduct = findSchemaObjectWithProductType(schemaOrgData);
+	const possibleParsedProduct = findSchemaObjectWithProductData(schemaOrgData);
 
-	if (!possibleParsedProduct) return null;
+	if (v.is(ParsedProductSchema, possibleParsedProduct)) {
+		const {
+			aggregateRating: { ratingValue: schemaRating },
+			brand: schemaBrand,
+			image: schemaImage,
+			name: schemaName,
+			offers,
+			url: schemaDocumentUrl,
+			price,
+			priceCurrency,
+		} = possibleParsedProduct;
 
-	const {
-		aggregateRating: { ratingValue: schemaRating },
-		brand: schemaBrand,
-		image: schemaImage,
-		name: schemaName,
-		offers,
-		url: schemaDocumentUrl,
-		price,
-		priceCurrency,
-	} = possibleParsedProduct;
+		const parsedBrand =
+			typeof schemaBrand === "string" ? schemaBrand : schemaBrand?.name;
 
-	const parsedBrand =
-		typeof schemaBrand === "string" ? schemaBrand : schemaBrand?.name;
+		const schemaCurrency = Array.isArray(offers)
+			? offers[0]?.priceCurrency
+			: (offers?.priceCurrency ?? priceCurrency);
+		const schemaPrice = Array.isArray(offers)
+			? offers[0]?.price
+			: (offers?.price ?? price);
 
-	const schemaCurrency = Array.isArray(offers)
-		? offers[0]?.priceCurrency
-		: (offers?.priceCurrency ?? priceCurrency);
-	const schemaPrice = Array.isArray(offers)
-		? offers[0]?.price
-		: (offers?.price ?? price);
+		if (!schemaPrice || !schemaCurrency) return null;
 
-	if (!schemaPrice || !schemaCurrency) return null;
+		return getProductDataFromScrapedSchemaOrgData({
+			backupImage: image,
+			backupName: title,
+			brand: parsedBrand,
+			currency: schemaCurrency,
+			image: schemaImage,
+			name: schemaName,
+			price: schemaPrice,
+			rating: `${schemaRating ?? PRODUCT_RATING_RANGE.MIN}`,
+			store: site ?? author,
+			url: schemaDocumentUrl ?? document.location.href,
+		});
+	} else if (v.is(ParsedProductGroupSchema, possibleParsedProduct)) {
+		const {
+			aggregateRating: { ratingValue: schemaRating },
+			brand: schemaBrand,
+			image: schemaImage,
+			name: schemaName,
+			url: schemaDocumentUrl,
+			hasVariant: schemaVariants,
+		} = possibleParsedProduct;
 
-	const extractedProductData: ProductDataSchema = {
-		currency: SCRAPED_PRODUCT_DATA_CLEANER.currency(schemaCurrency),
-		imgSrc: SCRAPED_PRODUCT_DATA_CLEANER.imgSrc(
-			Array.isArray(schemaImage)
-				? (schemaImage[0] ?? image)
-				: typeof schemaImage === "string"
-					? schemaImage
-					: "url" in schemaImage
-						? `${schemaImage.url}`
-						: (schemaImage.contentUrl[0] ?? image),
-		),
-		name: SCRAPED_PRODUCT_DATA_CLEANER.name(
-			parsedBrand && schemaName
-				? `${parsedBrand} ${schemaName}`
-				: schemaName
-					? schemaName
-					: title,
-		),
-		price: SCRAPED_PRODUCT_DATA_CLEANER.price(schemaPrice),
-		rating: SCRAPED_PRODUCT_DATA_CLEANER.rating(
-			`${schemaRating ?? PRODUCT_RATING_RANGE.MIN}`,
-		),
-		store: site ?? author,
-		url: SCRAPED_PRODUCT_DATA_CLEANER.url(
-			schemaDocumentUrl ?? document.location.href,
-		),
-	};
+		const parsedBrand =
+			typeof schemaBrand === "string" ? schemaBrand : schemaBrand?.name;
 
-	return v.parse(ProductDataSchema, extractedProductData);
+		const offers = schemaVariants[0]?.offers ?? [];
+
+		const schemaCurrency = Array.isArray(offers)
+			? offers[0]?.priceCurrency
+			: offers?.priceCurrency;
+		const schemaPrice = Array.isArray(offers)
+			? offers[0]?.price
+			: offers?.price;
+
+		if (!schemaPrice || !schemaCurrency) return null;
+
+		return getProductDataFromScrapedSchemaOrgData({
+			backupImage: image,
+			backupName: title,
+			brand: parsedBrand,
+			currency: schemaCurrency,
+			image: schemaImage,
+			name: schemaName,
+			price: schemaPrice,
+			rating: `${schemaRating ?? PRODUCT_RATING_RANGE.MIN}`,
+			store: site ?? author,
+			url: schemaDocumentUrl ?? document.location.href,
+		});
+	}
+
+	return null;
 };
