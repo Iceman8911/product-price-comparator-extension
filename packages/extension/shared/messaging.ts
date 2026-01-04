@@ -9,8 +9,10 @@ interface ProtocolMap {
 	): ReturnType<typeof sendQueryToPhindAiViaBackgroundWorker>;
 }
 
-export const { onMessage, sendMessage } =
-	defineExtensionMessaging<ProtocolMap>();
+export const {
+	onMessage: onExtensionMessage,
+	sendMessage: sendExtensionMessage,
+} = defineExtensionMessaging<ProtocolMap>();
 
 export const { onMessage: onWindowMessage, sendMessage: sendWindowMessage } =
 	defineWindowMessaging<ProtocolMap>({
