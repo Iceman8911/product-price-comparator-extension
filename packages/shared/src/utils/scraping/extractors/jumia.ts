@@ -56,9 +56,9 @@ const windowDataExtractor: ProductDataExtractor = (window) => {
 const documentScraperExtractor = createDocumentScraperProductDataExtractor(
 	(document) => {
 		/** There's a lot of useful data attributes on this :D */
-		const hiddenDataForm = document.querySelector("form#wishlist");
+		const hiddenDataElement = document.querySelector("#wishlist");
 
-		const scrapedNameFromForm = `${hiddenDataForm?.getAttribute("data-ga4-item_brand") ?? ""}${SPACE_SEPERATOR}${hiddenDataForm?.getAttribute("data-ga4-item_name") ?? ""}`;
+		const scrapedNameFromForm = `${hiddenDataElement?.getAttribute("data-ga4-item_brand") ?? ""}${SPACE_SEPERATOR}${hiddenDataElement?.getAttribute("data-ga4-item_name") ?? ""}`;
 		const name =
 			scrapedNameFromForm !== SPACE_SEPERATOR
 				? scrapedNameFromForm
@@ -72,12 +72,12 @@ const documentScraperExtractor = createDocumentScraperProductDataExtractor(
 		/** '4.8 out of 5' */
 		const [rating] =
 			(
-				hiddenDataForm?.getAttribute("data-gtm-dimension27") ??
+				hiddenDataElement?.getAttribute("data-gtm-dimension27") ??
 				document.querySelector(".stars")?.textContent
 			)?.split(SPACE_SEPERATOR) ?? "";
 
 		const imgSrc =
-			hiddenDataForm?.getAttribute("data-moengage-product_image") ??
+			hiddenDataElement?.getAttribute("data-moengage-product_image") ??
 			(
 				document.querySelector("img[alt^=product_image_name]") as
 					| HTMLImageElement
