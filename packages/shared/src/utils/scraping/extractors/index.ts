@@ -3,9 +3,9 @@
 import { SupportedSitePatterns } from "@bandwidth-saver/shared";
 import { MatchPattern } from "@webext-core/match-patterns";
 import type { ProductDataSchema } from "../../../models/product";
-import { llmProductDataExtractor } from "./fallback";
 import { jumiaProductDataExtractor } from "./jumia";
 import { kongaProductDataExtractor } from "./konga";
+import { llmProductDataExtractor } from "./llm-fallback";
 import { schemaOrgProductDataExtractor } from "./schema.org";
 import type { ProductDataExtractor } from "./shared";
 import { temuProductDataExtractor } from "./temu";
