@@ -169,7 +169,10 @@ const getProductDataFromScrapedSchemaOrgData = (arg: {
 						: (image.contentUrl[0] ?? backupImage),
 		),
 		name: SCRAPED_PRODUCT_DATA_CLEANER.name(
-			brand && name && !name.startsWith(brand)
+			brand &&
+				name &&
+				!name.startsWith(brand) &&
+				!brand.toLowerCase().includes("null")
 				? `${brand} ${name}`
 				: name
 					? name
