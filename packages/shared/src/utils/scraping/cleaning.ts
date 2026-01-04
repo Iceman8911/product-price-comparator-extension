@@ -11,11 +11,17 @@ function genericCleaner(str: string): string {
 	return str.trim();
 }
 
-const PERIOD_OR_COMMA_REGEX = /,|\./g;
-
 /** For cleaning stuff like "1,234,566" */
 function cleanPriceString(priceStr: string): number {
-	return Number(genericCleaner(priceStr).replaceAll(PERIOD_OR_COMMA_REGEX, ""));
+	return Number(
+		genericCleaner(priceStr)
+			// Remove spaces
+			.replace(/\s+/g, "")
+			// Remove thousands separators (commas or periods) only if followed by 3 digits
+			.replace(/(?<=\d)[,.](?=\d{3}\b)/g, "")
+			// Normalize decimal separator: replace comma with dot if it's the decimal
+			.replace(/,(\d{1,2})$/, ".$1"),
+	);
 }
 
 const RATING_SEPERATOR = "/";
