@@ -14,6 +14,7 @@ function injectProductDataExtractorScript() {
 	window.addEventListener(
 		"load",
 		async () => {
+			registerPhindAiMessageResponderFromInjectedScript();
 			await injectScript("/extract-product-data-from-window.js", {
 				keepInDom: true,
 			});
@@ -24,8 +25,6 @@ function injectProductDataExtractorScript() {
 
 export default defineContentScript({
 	async main() {
-		registerPhindAiMessageResponderFromInjectedScript();
-
 		injectProductDataExtractorScript();
 	},
 	matches: ["<all_urls>"],
