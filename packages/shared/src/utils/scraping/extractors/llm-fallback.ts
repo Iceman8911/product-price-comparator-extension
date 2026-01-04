@@ -27,6 +27,10 @@ const ProductDataJsonSchema = toJsonSchema(ProductDataSchema);
 const PARTIAL_DATA_EXTRACTOR_QUERY_STRING =
 	`Using the given partial JSON schema, ${JSON.stringify(PartialProductDataJsonSchema)}, inspect the below chunked dom data extracted via readability.js and return, in a JSON format, all the properties you can find correct values for. Abide by the given schema's shape at all costs.
 
+	By JSON format, I mean "{}" over \`\`\`json{}\`\`\`.
+
+	Note that the "store" should be succinct (ideally a single word or two). If it cannot be expressed briefly, omit it.
+
   Here's the dom data:
 
   ` as const;
@@ -42,7 +46,10 @@ const getDataCoalescerQueryString = (possibleInferredData: {
 
 	Note that ${name ? `, the product name could be ${name}` : ""} ${store ? `, the store name could be ${store}` : ""}, the url is ${url}. Feel free to also use these in determining the accurate json data.
 
-   Here are the results:
+
+	By JSON format, I mean "{}" over \`\`\`json{}\`\`\`.
+
+  Here are the results:
 
    ` as const;
 };
