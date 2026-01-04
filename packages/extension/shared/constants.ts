@@ -4,8 +4,9 @@ import { UrlSchema } from "@bandwidth-saver/shared";
 import * as v from "valibot";
 
 export enum ExtensionData {
-	NAME = "Bandwidth Saver and Monitor",
-	VERSION = 1,
+	NAME = "Product Price Comparator",
+	VERSION = "0.0.1",
+	ID = `${NAME} - Iceman8911`,
 }
 
 export const DUMMY_TAB_URL = v.parse(UrlSchema, "https://foo.bar");
@@ -58,5 +59,3 @@ export const getActiveTabUrl = async () => {
 export enum MessageType {
 	SEND_PROMPT_TO_PHIND_AI_VIA_BACKGROUND_WORKER = "1",
 }
-
-export const EXTENSION_ID = "Product Price Comparator - Iceman8911";
