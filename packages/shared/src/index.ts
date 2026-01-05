@@ -1,3 +1,4 @@
+export * as PlaceholderImage from "./assets/placeholder.webp";
 export * from "./constants";
 export * from "./models/env";
 export * from "./models/shared";

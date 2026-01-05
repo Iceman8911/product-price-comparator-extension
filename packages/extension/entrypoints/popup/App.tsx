@@ -2,7 +2,7 @@ import PopupUi from "@/components/popup/ui";
 
 export default function App() {
 	return (
-		<div class="aspect-4/5 h-100 p-4">
+		<div class="aspect-5/4 h-100 p-4">
 			<PopupUi />
 		</div>
 	);
