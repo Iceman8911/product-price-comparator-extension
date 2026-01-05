@@ -7,8 +7,8 @@ export default defineConfig({
 	manifest: {
 		author: { email: "wuchijss3@gmail.com" },
 		description:
-			"Product comparison extension for getting the best deals when shopping.",
-		name: "Bandwidth Saver & Monitor",
+			"Compares the product you're browsing with close alternatives from other popular sites to help you make the best choice.",
+		name: "Shopping Optimizer",
 		permissions: ["activeTab", "storage", "offscreen"],
 		short_name: "Product Price Optimiser",
 		version: "0.0.1",
