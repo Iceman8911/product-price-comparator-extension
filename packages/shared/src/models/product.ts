@@ -2,10 +2,13 @@ import * as v from "valibot";
 import { PRODUCT_RATING_RANGE } from "../constants";
 import { UrlSchema } from "./shared";
 
-export const ProductDataRatingSchema = v.pipe(
-	v.number(),
-	v.minValue(PRODUCT_RATING_RANGE.MIN),
-	v.maxValue(PRODUCT_RATING_RANGE.MAX),
+export const ProductDataRatingSchema = v.nullish(
+	v.pipe(
+		v.number(),
+		v.minValue(PRODUCT_RATING_RANGE.MIN),
+		v.maxValue(PRODUCT_RATING_RANGE.MAX),
+	),
+	PRODUCT_RATING_RANGE.MIN,
 );
 export type ProductDataRatingSchema = v.InferOutput<
 	typeof ProductDataRatingSchema

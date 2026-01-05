@@ -1,5 +1,6 @@
 import { Readability } from "@mozilla/readability";
 import { toJsonSchema } from "@valibot/to-json-schema";
+import Defuddle from "defuddle";
 import * as v from "valibot";
 import { ProductDataSchema } from "../../../models/product";
 import { fixCaughtErrorType } from "../../error";
@@ -14,7 +15,9 @@ function extractRelevantDomData(
 	return new Readability(document.cloneNode(true) as Document).parse();
 }
 
-type LlmQuery = (query: string) => Promise<string>;
+type LlmQuery = (
+	...queries: ReadonlyArray<string>
+) => Promise<ReadonlyArray<string>>;
 
 const QUERY_SIZE = 1800;
 
@@ -54,6 +57,8 @@ const getDataCoalescerQueryString = (possibleInferredData: {
    ` as const;
 };
 
+const ProductDataSchemaKeys = Object.keys(ProductDataSchema.entries);
+
 export const llmProductDataExtractor = async (
 	window: Window,
 	llmQuerier?: LlmQuery | undefined,
@@ -68,35 +73,52 @@ export const llmProductDataExtractor = async (
 
 	if (typeof relevantDomData !== "string") return null;
 
-	const chunkedDomData = chunkifyLargeString(relevantDomData, QUERY_SIZE);
+	const siteMetaTags = JSON.stringify(
+		new Defuddle(document.cloneNode(true) as Document).parse().metaTags,
+	);
 
-	const queries = chunkedDomData.map(
+	// Last resort for more info, scrape generically
+	const genericScrapedData = ProductDataSchemaKeys.flatMap((key) =>
+		Array.from(window.document.querySelectorAll(`[class*=${key}]`)).map(
+			(ele) => ele.outerHTML,
+		),
+	);
+
+	const chunkedData = chunkifyLargeString(
+		` ${siteMetaTags} ${genericScrapedData} ${relevantDomData}`,
+		QUERY_SIZE,
+	);
+
+	const queries = chunkedData.map(
 		(chunk) => `${PARTIAL_DATA_EXTRACTOR_QUERY_STRING}${chunk}` as const,
 	);
 
-	const partialResults = (
-		await Promise.allSettled(queries.map((query) => llmQuerier(query)))
-	).reduce<PartialProductDataSchema[]>((successfulResults, res) => {
-		if (res.status === "fulfilled") {
+	const resolvedQueries = await llmQuerier(...queries);
+
+	// console.log("resolvedQueries:", resolvedQueries);
+
+	const partialResults = resolvedQueries.reduce<PartialProductDataSchema[]>(
+		(successfulResults, res) => {
 			const parsedPartialProductResult = v.safeParse(
 				PartialProductDataSchema,
-				res.value,
+				JSON.parse(res),
 			);
 
 			if (parsedPartialProductResult.success) {
 				successfulResults.push(parsedPartialProductResult.output);
 			}
-		}
 
-		return successfulResults;
-	}, []);
+			return successfulResults;
+		},
+		[],
+	);
 
 	const combinedResult = await llmQuerier(
 		`${getDataCoalescerQueryString({ name: title, store: siteName, url: window.location.href })}${JSON.stringify(partialResults)}`,
 	);
 
 	try {
-		return v.parse(ProductDataSchema, JSON.parse(combinedResult));
+		return v.parse(ProductDataSchema, JSON.parse(combinedResult[0] ?? ""));
 	} catch (e) {
 		console.warn("LLM data extraction failed with:", fixCaughtErrorType(e));
 

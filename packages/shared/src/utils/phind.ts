@@ -10,17 +10,34 @@ type PHIND_AI_BODY_QUERY = {
 	search: boolean;
 };
 
+export type PhindAiQueryRestArgs = ReadonlyArray<PHIND_AI_BODY_QUERY>;
+
 const PhindAiResponse = v.object({ answer: v.string() });
 
 export async function sendQueryToPhindAi(
-	bodyQuery: PHIND_AI_BODY_QUERY,
-): Promise<string> {
-	const res = await fetch(PHIND_AI_ENDPOINT, {
-		body: JSON.stringify(bodyQuery),
-		method: "POST",
-	});
+	...bodyQueries: PhindAiQueryRestArgs
+): Promise<ReadonlyArray<string>> {
+	const results = await Promise.allSettled(
+		bodyQueries.map((query) =>
+			fetch(PHIND_AI_ENDPOINT, {
+				body: JSON.stringify(query),
+				method: "POST",
+			}).then((res) => res.json()),
+		),
+	);
 
-	const { answer } = v.parse(PhindAiResponse, await res.json());
+	const answers = results.reduce<string[]>(
+		(successfullyParsedResults, result) => {
+			if (result.status === "fulfilled") {
+				const { answer } = v.parse(PhindAiResponse, result.value);
 
-	return answer;
+				successfullyParsedResults.push(answer);
+			}
+
+			return successfullyParsedResults;
+		},
+		[],
+	);
+
+	return answers;
 }
