@@ -7,7 +7,7 @@ export async function sendQueryToPhindAiFromInjectedScriptViaContentScript(
 	...args: Parameters<typeof sendQueryToPhindAi>
 ): ReturnType<typeof sendQueryToPhindAi> {
 	return sendWindowMessage(
-		MessageType.SEND_PROMPT_TO_PHIND_AI_VIA_BACKGROUND_WORKER,
+		MessageType.SEND_PROMPT_TO_PHIND_AI_VIA_BACKGROUND_WORKER_USING_CONTENT_SCRIPT,
 		args,
 	);
 }

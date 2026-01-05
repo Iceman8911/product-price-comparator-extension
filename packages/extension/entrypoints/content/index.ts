@@ -4,7 +4,7 @@ import { sendQueryToPhindAiViaBackgroundWorker } from "@/utils/phind/backgound-s
 
 function registerPhindAiMessageResponderFromInjectedScript() {
 	onWindowMessage(
-		MessageType.SEND_PROMPT_TO_PHIND_AI_VIA_BACKGROUND_WORKER,
+		MessageType.SEND_PROMPT_TO_PHIND_AI_VIA_BACKGROUND_WORKER_USING_CONTENT_SCRIPT,
 		async ({ data: queryArgs }) =>
 			sendQueryToPhindAiViaBackgroundWorker(...queryArgs),
 	);

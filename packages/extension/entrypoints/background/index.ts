@@ -1,6 +1,6 @@
 import { sendQueryToPhindAi } from "@bandwidth-saver/shared";
 import { MessageType } from "@/shared/constants";
-import { onExtensionMessage } from "@/shared/messaging";
+import { onExtensionMessage } from "@/shared/messaging/extension";
 
 export default defineBackground(async () => {
 	onExtensionMessage(

@@ -57,5 +57,9 @@ export const getActiveTabUrl = async () => {
 // export const UPDATE_INTERVAL_IN_MS = 1000 * 60 * 60;
 
 export enum MessageType {
+	/** For use in non-background scripts, bar injected scripts */
 	SEND_PROMPT_TO_PHIND_AI_VIA_BACKGROUND_WORKER = "1",
+
+	/** For use in injected scripts */
+	SEND_PROMPT_TO_PHIND_AI_VIA_BACKGROUND_WORKER_USING_CONTENT_SCRIPT = "2",
 }
