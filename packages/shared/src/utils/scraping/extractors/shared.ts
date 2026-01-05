@@ -2,7 +2,7 @@ import {
 	fixCaughtErrorType,
 	NOT_AVAILABLE,
 	SCRAPED_PRODUCT_DATA_CLEANER,
-} from "@bandwidth-saver/shared";
+} from "@shopping-optimizer/shared";
 import * as v from "valibot";
 import { ProductDataSchema } from "../../../../../shared/src/models/product";
 

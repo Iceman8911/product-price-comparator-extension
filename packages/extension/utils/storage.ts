@@ -1,4 +1,4 @@
-import { UrlSchema } from "@bandwidth-saver/shared";
+import { UrlSchema } from "@shopping-optimizer/shared";
 import * as v from "valibot";
 import { type STORAGE_DEFAULTS, StorageAreaSchema } from "@/models/storage";
 import { StorageKey } from "@/shared/constants";

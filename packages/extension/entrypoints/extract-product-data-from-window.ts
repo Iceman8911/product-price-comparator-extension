@@ -1,4 +1,4 @@
-import { extractProductDataFromWindow } from "@bandwidth-saver/shared";
+import { extractProductDataFromWindow } from "@shopping-optimizer/shared";
 import { MessageType } from "@/shared/constants";
 import { onWindowMessage } from "@/shared/messaging/content-script";
 import { sendQueryToPhindAiFromInjectedScriptViaContentScript } from "@/utils/phind/content-script";

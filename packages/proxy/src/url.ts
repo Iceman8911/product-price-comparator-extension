@@ -1,7 +1,7 @@
 import {
 	ImageCompressionPayloadSchema,
 	UrlSchema,
-} from "@bandwidth-saver/shared";
+} from "@shopping-optimizer/shared";
 import * as v from "valibot";
 
 /** Using `new URL()` to get the search params of a url string with a searchy query containing another url (that also has a query string) is wonky; in the sense that the latter url will only be extracted with the first query from its original string. */

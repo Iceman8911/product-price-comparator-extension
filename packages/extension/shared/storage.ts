@@ -1,4 +1,4 @@
-import type { UrlSchema } from "@bandwidth-saver/shared";
+import type { UrlSchema } from "@shopping-optimizer/shared";
 import type { ProductDataSchema } from "../../shared/src/models/product";
 import { StorageKey } from "./constants";
 

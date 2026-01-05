@@ -1,7 +1,7 @@
 import type {
 	PhindAiQueryRestArgs,
 	sendQueryToPhindAi,
-} from "@bandwidth-saver/shared";
+} from "@shopping-optimizer/shared";
 import { MessageType } from "@/shared/constants";
 import { sendExtensionMessage } from "@/shared/messaging/extension";
 

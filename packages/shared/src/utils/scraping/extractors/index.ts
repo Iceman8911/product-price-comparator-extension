@@ -1,6 +1,6 @@
 // Some shopping sites have the currently viewed product's data somewhere within a global
 
-import { SupportedSitePatterns } from "@bandwidth-saver/shared";
+import { SupportedSitePatterns } from "@shopping-optimizer/shared";
 import { MatchPattern } from "@webext-core/match-patterns";
 import type { ProductDataSchema } from "../../../models/product";
 import { jumiaProductDataExtractor } from "./jumia";

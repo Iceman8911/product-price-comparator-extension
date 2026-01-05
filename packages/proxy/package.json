@@ -1,6 +1,6 @@
 {
 	"dependencies": {
-		"@bandwidth-saver/shared": "workspace:*",
+		"@shopping-optimizer/shared": "workspace:*",
 		"dotenv": "^17.2.3",
 		"elysia": "latest",
 		"sharp": "^0.34.5",
@@ -13,7 +13,7 @@
 		".": "./src/index.ts"
 	},
 	"module": "src/index.ts",
-	"name": "@bandwidth-saver/proxy",
+	"name": "@shopping-optimizer/proxy",
 	"scripts": {
 		"dev": "bun run --watch src/index.ts",
 		"test": "echo \"Error: no test specified\" && exit 1"

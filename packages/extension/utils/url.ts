@@ -1,4 +1,4 @@
-import { UrlSchema } from "@bandwidth-saver/shared";
+import { UrlSchema } from "@shopping-optimizer/shared";
 import * as v from "valibot";
 import type { SingleAssetStatisticsSchema } from "@/models/storage";
 

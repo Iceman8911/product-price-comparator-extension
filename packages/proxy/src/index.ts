@@ -4,7 +4,7 @@ import {
 	ImageCompressionPayloadSchema,
 	REDIRECTED_SEARCH_PARAM_FLAG,
 	ServerAPIEndpoint,
-} from "@bandwidth-saver/shared";
+} from "@shopping-optimizer/shared";
 import { Elysia } from "elysia";
 import { compressImage } from "./compression";
 import { cleanlyExtractUrlFromImageCompressorPayload } from "./url";

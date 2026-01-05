@@ -1,4 +1,4 @@
-import type { PhindAiQueryRestArgs } from "@bandwidth-saver/shared";
+import type { PhindAiQueryRestArgs } from "@shopping-optimizer/shared";
 import type { sendQueryToPhindAiViaBackgroundWorker } from "@/utils/phind/backgound-script";
 import type { ProductDataSchema } from "../../../shared/src/models/product";
 import { MessageType } from "../constants";

@@ -2,7 +2,7 @@ import {
 	getRandomUUID,
 	PlaceholderImage,
 	UrlSchema,
-} from "@bandwidth-saver/shared";
+} from "@shopping-optimizer/shared";
 import SearchIcon from "lucide-solid/icons/search";
 import type { Setter } from "solid-js";
 import * as v from "valibot";

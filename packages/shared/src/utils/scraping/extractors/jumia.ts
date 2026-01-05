@@ -2,7 +2,7 @@
 import {
 	SCRAPED_PRODUCT_DATA_CLEANER,
 	UrlSchema,
-} from "@bandwidth-saver/shared";
+} from "@shopping-optimizer/shared";
 import * as v from "valibot";
 import {
 	ProductDataRatingSchema,

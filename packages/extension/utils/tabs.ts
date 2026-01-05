@@ -1,4 +1,4 @@
-import { UrlSchema } from "@bandwidth-saver/shared";
+import { UrlSchema } from "@shopping-optimizer/shared";
 import * as v from "valibot";
 
 export async function getActiveTabOrigin(): Promise<UrlSchema | null> {

@@ -1,4 +1,4 @@
-import type { UrlSchema } from "@bandwidth-saver/shared";
+import type { UrlSchema } from "@shopping-optimizer/shared";
 import { DeclarativeNetRequestRuleIds } from "@/shared/constants";
 import { getSiteSpecificGeneralSettingsStorageItem } from "@/shared/storage";
 import { getSiteUrlOriginsFromStorage } from "./storage";

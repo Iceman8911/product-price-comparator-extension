@@ -1,4 +1,4 @@
-import { sendQueryToPhindAi } from "@bandwidth-saver/shared";
+import { sendQueryToPhindAi } from "@shopping-optimizer/shared";
 import { MessageType } from "@/shared/constants";
 import { onExtensionMessage } from "@/shared/messaging/extension";
 

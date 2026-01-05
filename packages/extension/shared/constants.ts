@@ -1,6 +1,6 @@
 /** biome-ignore-all lint/style/useLiteralEnumMembers: <I like it:p> */
 
-import { UrlSchema } from "@bandwidth-saver/shared";
+import { UrlSchema } from "@shopping-optimizer/shared";
 import * as v from "valibot";
 
 export enum ExtensionData {

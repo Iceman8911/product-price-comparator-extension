@@ -1,9 +1,9 @@
 {
 	"dependencies": {
-		"@bandwidth-saver/shared": "workspace:*",
 		"@elysiajs/eden": "^1.4.5",
 		"@kobalte/core": "^0.13.11",
 		"@kobalte/tailwindcss": "^0.9.0",
+		"@shopping-optimizer/shared": "workspace:*",
 		"@webext-core/messaging": "^2.3.0",
 		"locale-currency": "^1.0.0",
 		"lucide-solid": "^0.562.0",
@@ -12,10 +12,10 @@
 		"tiny-lru": "^11.4.5",
 		"valibot": "^1.2.0"
 	},
-	"description": "bandwidth-saver-and-monitor",
+	"description": "shopping-optimizer",
 	"devDependencies": {
-		"@bandwidth-saver/proxy": "workspace:*",
 		"@iceman8911/unplugin-inline-enum": "^0.6.7",
+		"@shopping-optimizer/proxy": "workspace:*",
 		"@tailwindcss/vite": "^4.1.18",
 		"@types/query-selector-shadow-dom": "^1.0.4",
 		"@wxt-dev/auto-icons": "^1.1.0",
@@ -25,7 +25,7 @@
 		"typescript": "^5.9.3",
 		"wxt": "^0.20.11"
 	},
-	"name": "bandwidth-saver-and-monitor",
+	"name": "@shopping-optimizer/extension",
 	"private": true,
 	"scripts": {
 		"build": "wxt build",
