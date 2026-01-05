@@ -59,7 +59,9 @@ export const getActiveTabUrl = async () => {
 export enum MessageType {
 	/** For use in non-background scripts, bar injected scripts */
 	SEND_PROMPT_TO_PHIND_AI_VIA_BACKGROUND_WORKER = "1",
+	/** Popup sends to content script, content script sends to injected script. Injected script returns results to content script which returns to popup */
+	EXTRACT_PRODUCT_DATA_FROM_INJECTED_SITE = "2",
 
 	/** For use in injected scripts */
-	SEND_PROMPT_TO_PHIND_AI_VIA_BACKGROUND_WORKER_USING_CONTENT_SCRIPT = "2",
+	SEND_PROMPT_TO_PHIND_AI_VIA_BACKGROUND_WORKER_USING_CONTENT_SCRIPT = "3",
 }
