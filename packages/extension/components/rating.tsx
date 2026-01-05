@@ -9,6 +9,8 @@ type BaseRatingProps = {
 	containerClass?: string;
 	/** 0 to 5 */
 	ratingLevel: number;
+
+	readonly?: boolean;
 };
 
 export function BaseRating(props: BaseRatingProps) {
@@ -29,7 +31,8 @@ export function BaseRating(props: BaseRatingProps) {
 						<input
 							aria-label={`${idx + 1} star`}
 							checked={props.ratingLevel === idx + 1}
-							class={`mask mask-star-2 bg-orange-400 ${starClass()}`}
+							class={`mask mask-star-2 bg-orange-400 ${props.readonly ? "pointer-events-none" : ""} ${starClass()}`}
+							disabled={props.readonly}
 							name={props.name}
 							type="radio"
 						/>

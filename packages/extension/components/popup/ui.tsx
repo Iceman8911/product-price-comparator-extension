@@ -103,7 +103,8 @@ function ProductCard(props: { product: ProductDataSchema }) {
 				<div class="flex items-center justify-start gap-4">
 					<BaseRating
 						name={`Rating for ${props.product.name}- ${getRandomUUID()}`}
-						ratingLevel={props.product.rating}
+						ratingLevel={Math.round(props.product.rating)}
+						readonly={true}
 					/>
 
 					<div>
