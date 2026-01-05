@@ -19,42 +19,9 @@ export const getActiveTabUrl = async () => {
 	}
 };
 
-// export const StorageKey = {
-// 	/** Default settings for customizing compression */
-// 	DEFAULT_SETTINGS_COMPRESSION: "local:compression",
-
-// 	/** Other default generic settings beyond the other classifications */
-// 	DEFAULT_SETTINGS_GENERAL: "local:general",
-
-// 	/** Default settings for the remote proxy that requests will be redirected to */
-// 	DEFAULT_SETTINGS_PROXY: "local:proxy",
-
-// 	SCHEMA_VERSION: "local:schemaVersion",
-
-// 	/** Site-specific settings for customizing compression */
-// 	SITE_SPECIFIC_SETTINGS_COMPRESSION_PREFIX: "local:siteScopeCompression-",
-
-// 	/** Site-specific settings toggles scoped to a site */
-// 	SITE_SPECIFIC_SETTINGS_GENERAL_PREFIX: "local:siteScopeGeneral-",
-
-// 	/** Site-specific settings for the remote proxy that requests will be redirected to */
-// 	SITE_SPECIFIC_SETTINGS_PROXY_PREFIX: "local:siteScopeProxy-",
-
-// 	/** Device-specific statistics per site */
-// 	SITE_SPECIFIC_STATISTICS_PREFIX: "local:siteScopeStatistics-",
-
-// 	/** Device-specific global statistics */
-// 	STATISTICS: "local:statistics",
-// } as const satisfies Record<string, StorageItemKey>;
-// export type StorageKey = ObjectToEnum<typeof StorageKey>;
-
-// export type SiteSpecificStorageKey =
-// 	| typeof StorageKey.SITE_SPECIFIC_SETTINGS_COMPRESSION_PREFIX
-// 	| typeof StorageKey.SITE_SPECIFIC_SETTINGS_GENERAL_PREFIX
-// 	| typeof StorageKey.SITE_SPECIFIC_SETTINGS_PROXY_PREFIX
-// 	| typeof StorageKey.SITE_SPECIFIC_STATISTICS_PREFIX;
-
-// export const UPDATE_INTERVAL_IN_MS = 1000 * 60 * 60;
+export enum StorageKey {
+	CACHED_PRODUCT_DATA_FOR_SITE_PREFIX = "session:cachedProduct-",
+}
 
 export enum MessageType {
 	/** For use in non-background scripts, bar injected scripts */
