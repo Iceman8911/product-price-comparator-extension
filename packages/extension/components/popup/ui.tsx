@@ -123,7 +123,7 @@ function MainProductDetectedOnCurrentSite(
 	props: MainProductDetectedOnCurrentSiteProps,
 ) {
 	return (
-		<div class="flex flex-col gap-4">
+		<div class="flex h-full flex-col gap-4">
 			<ProductCard product={props.mainProduct} />
 		</div>
 	);
