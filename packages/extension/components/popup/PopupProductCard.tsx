@@ -3,7 +3,7 @@ import type { ProductDataSchema } from "../../../shared/src/models/product";
 
 export function PopupProductCard(props: { product: ProductDataSchema }) {
 	return (
-		<div class="card card-side bg-base-300 shadow-sm">
+		<div class="card card-side h-30 bg-base-300 shadow-sm">
 			<figure>
 				<img
 					alt="Main Product"
