@@ -33,7 +33,7 @@ const backupProductDataExtractor = ([window, llmQuerier]: Parameters<
 };
 
 /** All encompassing product extractor */
-export const extractProductDataFromWindow = async ([
+export const extractProductDataFromDocumentOrWindow = async ([
 	documentArg,
 	llmQuerier,
 ]: Parameters<
