@@ -8,7 +8,10 @@ import type { Setter } from "solid-js";
 import * as v from "valibot";
 import { DUMMY_TAB_URL, MessageType } from "@/shared/constants";
 import { sendExtensionMessage } from "@/shared/messaging/extension";
-import { getCachedProductDataForSite } from "@/shared/storage";
+import {
+	extensionSettingsStorageItem,
+	getCachedProductDataForSite,
+} from "@/shared/storage";
 import type { ProductDataSchema } from "../../../shared/src/models/product";
 import { BaseRating } from "../rating";
 
@@ -39,7 +42,7 @@ function DetectProductOnCurrentSiteButton(
 
 		const possibleProductData = await sendExtensionMessage(
 			MessageType.EXTRACT_PRODUCT_DATA_FROM_INJECTED_SITE,
-			undefined,
+			(await extensionSettingsStorageItem.getValue()).enableAi,
 			props.activeTab.id,
 		);
 

@@ -8,5 +8,7 @@ export type MessagingProtocolMap = {
 		data: PhindAiQueryRestArgs,
 	): ReturnType<typeof sendQueryToPhindAiViaBackgroundWorker>;
 
-	[MessageType.EXTRACT_PRODUCT_DATA_FROM_INJECTED_SITE](): ProductDataSchema | null;
+	[MessageType.EXTRACT_PRODUCT_DATA_FROM_INJECTED_SITE](
+		shouldUseAi: boolean,
+	): ProductDataSchema | null;
 };

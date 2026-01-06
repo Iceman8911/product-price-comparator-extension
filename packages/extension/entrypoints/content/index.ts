@@ -15,8 +15,13 @@ function registerPhindAiMessageResponderFromInjectedScript() {
 }
 
 function triggerProductDetectionFromPopupHandler() {
-	onExtensionMessage(MessageType.EXTRACT_PRODUCT_DATA_FROM_INJECTED_SITE, () =>
-		sendWindowMessage(MessageType.EXTRACT_PRODUCT_DATA_FROM_INJECTED_SITE),
+	onExtensionMessage(
+		MessageType.EXTRACT_PRODUCT_DATA_FROM_INJECTED_SITE,
+		({ data: shouldEnableAi }) =>
+			sendWindowMessage(
+				MessageType.EXTRACT_PRODUCT_DATA_FROM_INJECTED_SITE,
+				shouldEnableAi,
+			),
 	);
 }
 

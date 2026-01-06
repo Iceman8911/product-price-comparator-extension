@@ -6,16 +6,18 @@ import { sendQueryToPhindAiFromInjectedScriptViaContentScript } from "@/utils/ph
 export default defineUnlistedScript(async () => {
 	onWindowMessage(
 		MessageType.EXTRACT_PRODUCT_DATA_FROM_INJECTED_SITE,
-		async () => {
+		async ({ data: shouldUseAi }) => {
 			const product = await extractProductDataFromWindow([
 				window,
-				(...queries) =>
-					sendQueryToPhindAiFromInjectedScriptViaContentScript(
-						...queries.map((query) => ({
-							query,
-							search: false,
-						})),
-					),
+				shouldUseAi
+					? (...queries) =>
+							sendQueryToPhindAiFromInjectedScriptViaContentScript(
+								...queries.map((query) => ({
+									query,
+									search: false,
+								})),
+							)
+					: undefined,
 			]);
 
 			return product;
