@@ -3,6 +3,7 @@ import * as v from "valibot";
 import { DUMMY_TAB_URL } from "@/shared/constants";
 import { getCachedProductDataForSite } from "@/shared/storage";
 import type { ProductDataSchema } from "../../../shared/src/models/product";
+import PopupAltProducts from "./alt-products-ui";
 import NoProductDetectedOnCurrentSiteYetUi from "./default-no-product-ui";
 import PopupMainProduct from "./main-product-ui";
 
@@ -32,6 +33,8 @@ export default function PopupUi() {
 		ProductDataSchema | undefined | null
 	>(cachedProductData());
 
+	const [altProducts, _setAltProducts] = createStore<ProductDataSchema[]>([]);
+
 	createEffect(
 		on(mainProduct, async (mainProduct) => {
 			if (!mainProduct) return;
@@ -56,6 +59,10 @@ export default function PopupUi() {
 				{(product) => (
 					<div class="flex h-full flex-col gap-4">
 						<PopupMainProduct mainProduct={product()} />
+
+						<Show when={altProducts.length}>
+							<PopupAltProducts products={altProducts} />
+						</Show>
 					</div>
 				)}
 			</Show>
