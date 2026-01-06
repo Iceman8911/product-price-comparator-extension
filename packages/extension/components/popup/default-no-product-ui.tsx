@@ -1,5 +1,5 @@
 import type { UrlSchema } from "@shopping-optimizer/shared";
-import { SearchIcon } from "lucide-solid";
+import SearchIcon from "lucide-solid/icons/search";
 import type { Setter } from "solid-js";
 import { MessageType } from "@/shared/constants";
 import { sendExtensionMessage } from "@/shared/messaging/extension";

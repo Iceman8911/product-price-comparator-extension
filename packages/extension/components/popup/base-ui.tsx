@@ -4,7 +4,7 @@ import { DUMMY_TAB_URL } from "@/shared/constants";
 import { getCachedProductDataForSite } from "@/shared/storage";
 import type { ProductDataSchema } from "../../../shared/src/models/product";
 import NoProductDetectedOnCurrentSiteYetUi from "./default-no-product-ui";
-import MainProductDetectedOnCurrentSite from "./main-product-ui";
+import PopupMainProduct from "./main-product-ui";
 
 export default function PopupUi() {
 	const [tabs] = createResource(() =>
@@ -54,7 +54,9 @@ export default function PopupUi() {
 				when={mainProduct()}
 			>
 				{(product) => (
-					<MainProductDetectedOnCurrentSite mainProduct={product()} />
+					<div class="flex h-full flex-col gap-4">
+						<PopupMainProduct mainProduct={product()} />
+					</div>
 				)}
 			</Show>
 		</div>
