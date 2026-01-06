@@ -78,8 +78,7 @@ export default function NoProductDetectedOnCurrentSiteYetUi(
 	return (
 		<div class="flex flex-col items-center justify-center gap-8">
 			<h2 class="text-center text-base">
-				Seems like no product has been autodetected. Click the button below to
-				begin manual detection.
+				Click the button below to begin product detection.
 			</h2>
 			<DetectProductOnCurrentSiteButton {...props} />
 		</div>
