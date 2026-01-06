@@ -92,6 +92,9 @@ function ProductCard(props: { product: ProductDataSchema }) {
 				<img
 					alt="Main Product"
 					class="object-cover"
+					onError={({ currentTarget }) => {
+						currentTarget.src = PlaceholderImage.default;
+					}}
 					src={props.product.imgSrc ?? PlaceholderImage.default}
 				/>
 			</figure>
