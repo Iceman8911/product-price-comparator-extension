@@ -1,4 +1,4 @@
-import type { UrlSchema } from "@shopping-optimizer/shared";
+import { fixCaughtErrorType, type UrlSchema } from "@shopping-optimizer/shared";
 import SearchIcon from "lucide-solid/icons/search";
 import type { Setter } from "solid-js";
 import { MessageType } from "@/shared/constants";
@@ -34,13 +34,20 @@ function DetectProductOnCurrentSiteButton(
 
 		setIsDetectingProduct(true);
 
-		const possibleProductData = await sendExtensionMessage(
-			MessageType.EXTRACT_PRODUCT_DATA_FROM_INJECTED_SITE,
-			(await extensionSettingsStorageItem.getValue()).enableAi,
-			props.activeTab.id,
-		);
+		try {
+			const possibleProductData = await sendExtensionMessage(
+				MessageType.EXTRACT_PRODUCT_DATA_FROM_INJECTED_SITE,
+				(await extensionSettingsStorageItem.getValue()).enableAi,
+				props.activeTab.id,
+			);
 
-		props.setMainProduct(possibleProductData);
+			props.setMainProduct(possibleProductData);
+		} catch (e) {
+			console.error(
+				"Product Data Extraction in popup failed with:",
+				fixCaughtErrorType(e),
+			);
+		}
 
 		setIsDetectingProduct(false);
 	};
