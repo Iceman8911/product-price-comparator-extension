@@ -20,8 +20,8 @@ export function PopupAltProductSearchButton(
 
 		try {
 			const productSearchResults = await getSearchResults({
-				engines: ["bing", "duckduckgo"],
-				limit: 5,
+				engines: ["duckduckgo"],
+				limit: 7,
 				text: props.mainProductName,
 			});
 
