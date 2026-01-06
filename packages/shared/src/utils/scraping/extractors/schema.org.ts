@@ -195,11 +195,11 @@ const getProductDataFromScrapedSchemaOrgData = (arg: {
 	return v.parse(ProductDataSchema, extractedProductData);
 };
 
-export const schemaOrgProductDataExtractor: ProductDataExtractor = ({
-	document,
-}) => {
+export const schemaOrgProductDataExtractor: ProductDataExtractor = (ctx) => {
+	const documentArg = ctx instanceof Document ? ctx : ctx.document;
+
 	const { schemaOrgData, image, site, author, title } = new Defuddle(
-		document.cloneNode(true) as Document,
+		documentArg.cloneNode(true) as Document,
 	).parse();
 
 	// No schemaOrgData so there's not much use going further
@@ -241,7 +241,7 @@ export const schemaOrgProductDataExtractor: ProductDataExtractor = ({
 			price: schemaPrice,
 			rating: `${aggregateRating?.ratingValue ?? PRODUCT_RATING_RANGE.MIN}`,
 			store: site ?? author,
-			url: schemaDocumentUrl ?? document.location.href,
+			url: schemaDocumentUrl ?? documentArg.location.href,
 		});
 	} else if (v.is(ParsedProductGroupSchema, possibleParsedProduct)) {
 		const {
@@ -277,7 +277,7 @@ export const schemaOrgProductDataExtractor: ProductDataExtractor = ({
 			price: schemaPrice,
 			rating: `${aggregateRating?.ratingValue ?? PRODUCT_RATING_RANGE.MIN}`,
 			store: site ?? author,
-			url: schemaDocumentUrl ?? document.location.href,
+			url: schemaDocumentUrl ?? documentArg.location.href,
 		});
 	}
 

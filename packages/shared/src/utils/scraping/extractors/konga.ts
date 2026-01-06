@@ -29,8 +29,10 @@ const KongaProductSchema = v.looseObject({
 	}),
 });
 
-const windowGlobalExtractor: ProductDataExtractor = (window) => {
-	const windowData = window["__NEXT_DATA__"];
+const windowGlobalExtractor: ProductDataExtractor = (ctx) => {
+	if (!(ctx instanceof Window)) return null;
+
+	const windowData = ctx["__NEXT_DATA__"];
 
 	const { name, price, product_rating, image_thumbnail } = v.parse(
 		KongaProductSchema,
@@ -46,26 +48,22 @@ const windowGlobalExtractor: ProductDataExtractor = (window) => {
 		price,
 		rating: product_rating.quality.average,
 		store: STORE_NAME,
-		url: window.location.href,
+		url: ctx.location.href,
 	} as const satisfies ProductDataSchema;
 
 	return v.parse(ProductDataSchema, productData);
 };
 
 const documentScraperExtractor = createDocumentScraperProductDataExtractor(
-	(document) => {
-		const currency = document.querySelector(
+	(ctx) => {
+		const currency = ctx.querySelector(
 			"[class*=priceBoxPrice] span",
 		)?.textContent;
-		const name = document.querySelector("[class*=productName]")?.textContent;
-		const price = document.querySelector(
-			"[class*=priceBoxPrice] div",
-		)?.textContent;
-		const rating = document.querySelector(
-			"[class*=customerReview_] p",
-		)?.textContent;
+		const name = ctx.querySelector("[class*=productName]")?.textContent;
+		const price = ctx.querySelector("[class*=priceBoxPrice] div")?.textContent;
+		const rating = ctx.querySelector("[class*=customerReview_] p")?.textContent;
 		const imgSrc = (
-			document.querySelector("img[class*=asset_imageContain]") as
+			ctx.querySelector("img[class*=asset_imageContain]") as
 				| HTMLImageElement
 				| undefined
 		)?.src;
@@ -77,7 +75,7 @@ const documentScraperExtractor = createDocumentScraperProductDataExtractor(
 			price,
 			rating,
 			store: STORE_NAME,
-			url: document.location.href,
+			url: ctx.location.href,
 		};
 	},
 );

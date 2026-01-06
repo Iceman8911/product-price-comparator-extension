@@ -38,7 +38,9 @@ const TemuProductSchema = v.looseObject({
 	review: v.looseObject({ reviewScore: ProductDataRatingSchema }),
 });
 
-const windowGlobalExtractor: ProductDataExtractor = (window) => {
+const windowGlobalExtractor: ProductDataExtractor = (ctx) => {
+	if (!(ctx instanceof Window)) return null;
+
 	const {
 		goods: {
 			goodsName,
@@ -46,7 +48,7 @@ const windowGlobalExtractor: ProductDataExtractor = (window) => {
 			salePriceRich: [{ text: currency }, { text: price }],
 		},
 		review: { reviewScore },
-	} = v.parse(TemuProductSchema, window["rawData"].store);
+	} = v.parse(TemuProductSchema, ctx["rawData"].store);
 
 	const productData = {
 		currency,
@@ -55,27 +57,27 @@ const windowGlobalExtractor: ProductDataExtractor = (window) => {
 		price: SCRAPED_PRODUCT_DATA_CLEANER.price(price),
 		rating: reviewScore,
 		store: STORE_NAME,
-		url: window.location.href,
+		url: ctx.location.href,
 	} as const satisfies ProductDataSchema;
 
 	return v.parse(ProductDataSchema, productData);
 };
 
 const documentScraperExtractor = createDocumentScraperProductDataExtractor(
-	(document) => {
-		const name = document.querySelector("h1")?.textContent;
+	(documentArg) => {
+		const name = documentArg.querySelector("h1")?.textContent;
 		const [_, currency, price] = Array.from(
-			document.querySelectorAll(
+			documentArg.querySelectorAll(
 				"#goods_price span[data-type='0'][aria-hidden=true]",
 			),
 		).map((a) => a.textContent);
 		/** '4.7 out of five stars' */
 		const [rating] =
-			document
+			documentArg
 				.querySelector(`[aria-label*='out of five stars']`)
 				?.ariaLabel?.split(SPACE_SEPERATOR) ?? "";
 		const imgSrc = (
-			document.querySelector(`img[aria-label="Goods Image"]`) as
+			documentArg.querySelector(`img[aria-label="Goods Image"]`) as
 				| HTMLImageElement
 				| undefined
 		)?.src;
@@ -87,7 +89,7 @@ const documentScraperExtractor = createDocumentScraperProductDataExtractor(
 			price,
 			rating,
 			store: STORE_NAME,
-			url: document.location.href,
+			url: documentArg.location.href,
 		};
 	},
 );

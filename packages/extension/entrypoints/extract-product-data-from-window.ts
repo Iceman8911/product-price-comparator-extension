@@ -8,7 +8,7 @@ export default defineUnlistedScript(async () => {
 		MessageType.EXTRACT_PRODUCT_DATA_FROM_INJECTED_SITE,
 		async ({ data: shouldUseAi }) => {
 			const product = await extractProductDataFromWindow([
-				window,
+				window.document,
 				shouldUseAi
 					? (...queries) =>
 							sendQueryToPhindAiFromInjectedScriptViaContentScript(

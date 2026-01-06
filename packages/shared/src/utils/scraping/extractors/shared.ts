@@ -9,17 +9,19 @@ import { ProductDataSchema } from "../../../../../shared/src/models/product";
 /** Either scrapes or sniffs js globals or smth */
 export type ProductDataExtractor = (
 	// biome-ignore lint/suspicious/noExplicitAny: <To cover sites that add extra props to the window object>
-	siteWindow: Window & Record<string, any>,
+	siteContext: (Window & Record<string, any>) | Document,
 ) => ProductDataSchema | null;
 
 export function createDocumentScraperProductDataExtractor(
-	productDataCallback: (document: Document) => {
+	productDataCallback: (documentArg: Document) => {
 		[key in keyof ProductDataSchema]: string | undefined;
 	},
 ): ProductDataExtractor {
-	const documentScraperExtractor: ProductDataExtractor = ({ document }) => {
+	const documentScraperExtractor: ProductDataExtractor = (ctx) => {
+		const documentArg = ctx instanceof Document ? ctx : ctx.document;
+
 		const { currency, imgSrc, name, price, rating, store, url } =
-			productDataCallback(document);
+			productDataCallback(documentArg);
 
 		if (!currency || !name || !price || !rating || !imgSrc || !url) {
 			console.warn(
@@ -56,9 +58,9 @@ export function createCombinedProductDataExtractor(
 	windowGlobalExtractor: ProductDataExtractor,
 	documentScraperExtractor: ProductDataExtractor,
 ): ProductDataExtractor {
-	const combinedExtractor: ProductDataExtractor = (window) => {
+	const combinedExtractor: ProductDataExtractor = (ctx) => {
 		try {
-			return windowGlobalExtractor(window) ?? documentScraperExtractor(window);
+			return windowGlobalExtractor(ctx) ?? documentScraperExtractor(ctx);
 		} catch (e) {
 			console.warn(
 				storeName,
@@ -67,7 +69,7 @@ export function createCombinedProductDataExtractor(
 			);
 
 			try {
-				return documentScraperExtractor(window);
+				return documentScraperExtractor(ctx);
 			} catch (e) {
 				console.warn(
 					storeName,

@@ -34,12 +34,12 @@ const backupProductDataExtractor = ([window, llmQuerier]: Parameters<
 
 /** All encompassing product extractor */
 export const extractProductDataFromWindow = async ([
-	window,
+	documentArg,
 	llmQuerier,
 ]: Parameters<
 	typeof llmProductDataExtractor
 >): Promise<ProductDataSchema | null> => {
-	const siteUrl = window.location.href;
+	const siteUrl = documentArg.location.href;
 
 	const matchingSupportedExtractor =
 		SUPPORTED_SITE_PRODUCT_DATA_MATCH_PATTERNS_AND_EXTRACTORS.find(
@@ -50,10 +50,10 @@ export const extractProductDataFromWindow = async ([
 
 	if (matchingSupportedExtractor) {
 		return (
-			matchingSupportedExtractor[1](window) ??
-			backupProductDataExtractor([window, llmQuerier])
+			matchingSupportedExtractor[1](documentArg) ??
+			backupProductDataExtractor([documentArg, llmQuerier])
 		);
 	}
 
-	return backupProductDataExtractor([window, llmQuerier]);
+	return backupProductDataExtractor([documentArg, llmQuerier]);
 };

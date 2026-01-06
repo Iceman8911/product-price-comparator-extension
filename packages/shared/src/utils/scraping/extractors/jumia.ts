@@ -30,10 +30,12 @@ const JumiaProductSchema = v.looseObject({
 	}),
 });
 
-const windowDataExtractor: ProductDataExtractor = (window) => {
+const windowDataExtractor: ProductDataExtractor = (ctx) => {
+	if (!(ctx instanceof Window)) return null;
+
 	const { displayName, prices, rating, image } = v.parse(
 		JumiaProductSchema,
-		window["__STORE__"].products[0],
+		ctx["__STORE__"].products[0],
 	);
 
 	const [currency, dirtyPrice] = prices.price.split(SPACE_SEPERATOR);
@@ -47,39 +49,38 @@ const windowDataExtractor: ProductDataExtractor = (window) => {
 		price: SCRAPED_PRODUCT_DATA_CLEANER.price(dirtyPrice),
 		rating: rating.average,
 		store: STORE_NAME,
-		url: window.location.href,
+		url: ctx.location.href,
 	} as const satisfies ProductDataSchema;
 
 	return v.parse(ProductDataSchema, productData);
 };
 
 const documentScraperExtractor = createDocumentScraperProductDataExtractor(
-	(document) => {
+	(ctx) => {
 		/** There's a lot of useful data attributes on this :D */
-		const hiddenDataElement = document.querySelector("#wishlist");
+		const hiddenDataElement = ctx.querySelector("#wishlist");
 
 		const scrapedNameFromForm = `${hiddenDataElement?.getAttribute("data-ga4-item_brand") ?? ""}${SPACE_SEPERATOR}${hiddenDataElement?.getAttribute("data-ga4-item_name") ?? ""}`;
 		const name =
 			scrapedNameFromForm !== SPACE_SEPERATOR
 				? scrapedNameFromForm
-				: document.querySelector("h1")?.textContent;
+				: ctx.querySelector("h1")?.textContent;
 
 		/** "$ 12,466" */
 		const [currency, price] =
-			document
-				.querySelector("[data-price]")
-				?.textContent.split(SPACE_SEPERATOR) ?? "";
+			ctx.querySelector("[data-price]")?.textContent.split(SPACE_SEPERATOR) ??
+			"";
 		/** '4.8 out of 5' */
 		const [rating] =
 			(
 				hiddenDataElement?.getAttribute("data-gtm-dimension27") ??
-				document.querySelector(".stars")?.textContent
+				ctx.querySelector(".stars")?.textContent
 			)?.split(SPACE_SEPERATOR) ?? "";
 
 		const imgSrc =
 			hiddenDataElement?.getAttribute("data-moengage-product_image") ??
 			(
-				document.querySelector("img[alt^=product_image_name]") as
+				ctx.querySelector("img[alt^=product_image_name]") as
 					| HTMLImageElement
 					| undefined
 			)?.src;
@@ -91,7 +92,7 @@ const documentScraperExtractor = createDocumentScraperProductDataExtractor(
 			price,
 			rating,
 			store: STORE_NAME,
-			url: document.location.href,
+			url: ctx.location.href,
 		};
 	},
 );

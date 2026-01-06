@@ -10,9 +10,9 @@ type ReadabilityParseResult = ReturnType<typeof Readability.prototype.parse>;
 
 // Fallback product data extractor that gets the most probable piece of the DOM and sends it to an AI model for parsing
 function extractRelevantDomData(
-	document: Document,
+	documentArg: Document,
 ): Readonly<ReadabilityParseResult> {
-	return new Readability(document.cloneNode(true) as Document).parse();
+	return new Readability(documentArg.cloneNode(true) as Document).parse();
 }
 
 type LlmQuery = (
@@ -60,12 +60,12 @@ const getDataCoalescerQueryString = (possibleInferredData: {
 const ProductDataSchemaKeys = Object.keys(ProductDataSchema.entries);
 
 export const llmProductDataExtractor = async (
-	window: Window,
+	documentArg: Document,
 	llmQuerier?: LlmQuery | undefined,
 ): Promise<ProductDataSchema | null> => {
 	if (!llmQuerier) return null;
 
-	const extracted = extractRelevantDomData(window.document);
+	const extracted = extractRelevantDomData(documentArg);
 
 	if (!extracted) return null;
 
@@ -74,12 +74,12 @@ export const llmProductDataExtractor = async (
 	if (typeof relevantDomData !== "string") return null;
 
 	const siteMetaTags = JSON.stringify(
-		new Defuddle(document.cloneNode(true) as Document).parse().metaTags,
+		new Defuddle(documentArg.cloneNode(true) as Document).parse().metaTags,
 	);
 
 	// Last resort for more info, scrape generically
 	const genericScrapedData = ProductDataSchemaKeys.flatMap((key) =>
-		Array.from(window.document.querySelectorAll(`[class*=${key}]`)).map(
+		Array.from(documentArg.querySelectorAll(`[class*=${key}]`)).map(
 			(ele) => ele.outerHTML,
 		),
 	);

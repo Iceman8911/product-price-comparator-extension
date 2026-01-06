@@ -46,9 +46,11 @@ const JijiProductSchema = v.looseObject({
 	og_title: v.string(),
 });
 
-const windowGlobalExtractor: ProductDataExtractor = (window) => {
+const windowGlobalExtractor: ProductDataExtractor = (ctx) => {
+	if (!(ctx instanceof Window)) return null;
+
 	/** Should have a single key like `advert-item-dLNJCtqZV24v3qoyHp3OegUR` */
-	const windowData = window["useNuxtApp"]().payload.data;
+	const windowData = ctx["useNuxtApp"]().payload.data;
 
 	//@ts-expect-error Still not done getting the value :p
 	const rawProductData = Object.values(windowData).find(Boolean).advert.seo;
@@ -75,22 +77,22 @@ const windowGlobalExtractor: ProductDataExtractor = (window) => {
 		/** Jiji doesn't expose ratings anywhere */
 		rating: PRODUCT_RATING_RANGE.MIN,
 		store: STORE_NAME,
-		url: window.location.href,
+		url: ctx.location.href,
 	} as const satisfies ProductDataSchema;
 
 	return v.parse(ProductDataSchema, productData);
 };
 
 const documentScraperExtractor = createDocumentScraperProductDataExtractor(
-	(document) => {
-		const name = document.querySelector("h1")?.textContent;
+	(documentArg) => {
+		const name = documentArg.querySelector("h1")?.textContent;
 		/** '₦ 18,000' */
 		const [currency, price] = (
-			document.querySelector("[class*=qa-advert-price-view-value]")
+			documentArg.querySelector("[class*=qa-advert-price-view-value]")
 				?.textContent ?? ""
 		).split(SPACE_SEPERATOR);
 		const imgSrc = (
-			document.querySelector("img[data-nuxt-pic]") as
+			documentArg.querySelector("img[data-nuxt-pic]") as
 				| HTMLImageElement
 				| undefined
 		)?.src;
@@ -103,7 +105,7 @@ const documentScraperExtractor = createDocumentScraperProductDataExtractor(
 			/** Jiji doesn't expose ratings anywhere */
 			rating: `${PRODUCT_RATING_RANGE.MIN}`,
 			store: STORE_NAME,
-			url: document.location.href,
+			url: documentArg.location.href,
 		};
 	},
 );
