@@ -1,4 +1,4 @@
-import PopupUi from "@/components/popup/ui";
+import PopupUi from "@/components/popup/base-ui";
 
 export default function App() {
 	return (
