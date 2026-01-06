@@ -2,10 +2,18 @@ import * as v from "valibot";
 import { UrlSchema } from "../models/shared";
 import { fixCaughtErrorType } from "./error";
 
+const OpenSerpSupportedSearchEngineSchema = v.picklist([
+	"google",
+	"yandex",
+	"baidu",
+	"bing",
+	"duckduckgo",
+]);
+
 const OpenSerpSearchResultSchema = v.object({
 	ad: v.boolean(),
 	description: v.string(),
-	engine: v.picklist(["google", "yandex", "baidu", "bing", "duckduckgo"]),
+	engine: OpenSerpSupportedSearchEngineSchema,
 	rank: v.number(),
 	title: v.string(),
 	url: UrlSchema,
@@ -26,14 +34,16 @@ export const OpenSerpSearchQuerySchema = v.object({
 	answers: v.optional(v.boolean()),
 	/** Date range in format YYYYMMDD..YYYYMMDD */
 	date: v.optional(v.pipe(v.string(), v.regex(/^(\d{8})\.\.(\d{8})$/))),
+	/** Search engines to use */
+	engines: v.optional(v.array(OpenSerpSupportedSearchEngineSchema)),
 	/** File extension */
 	file: v.optional(v.picklist(["PDF", "DOC", "XLS"])),
 	/** Language code */
 	lang: v.optional(v.picklist(["EN", "DE", "RU", "ES"])),
 	/** Number of results (max of 50) */
 	limit: v.pipe(v.number(), v.toMaxValue(50)),
-	/** Site-specific search (array of domains) */
-	site: v.optional(v.array(v.string())),
+	/** Site-specific search  */
+	site: v.optional(v.string()),
 	/** Search query text */
 	text: v.string(),
 });
@@ -51,7 +61,12 @@ export async function getOpenSerpGeneralSearchResults(
 
 		let key: keyof OpenSerpSearchQuerySchema;
 		for (key in query) {
-			generalSearchUrl.searchParams.append(key, `${query[key]}`);
+			const value = query[key];
+
+			generalSearchUrl.searchParams.append(
+				key,
+				`${Array.isArray(value) ? value.join(",") : value}`,
+			);
 		}
 
 		const json = await (await fetch(generalSearchUrl)).json();
