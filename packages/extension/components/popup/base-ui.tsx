@@ -3,7 +3,10 @@ import * as v from "valibot";
 import { DUMMY_TAB_URL } from "@/shared/constants";
 import { getCachedProductDataForSite } from "@/shared/storage";
 import type { ProductDataSchema } from "../../../shared/src/models/product";
-import PopupAltProducts from "./alt-products-ui";
+import {
+	PopupAltProductSearchButton,
+	PopupAltProducts,
+} from "./alt-products-ui";
 import NoProductDetectedOnCurrentSiteYetUi from "./default-no-product-ui";
 import PopupMainProduct from "./main-product-ui";
 
@@ -33,7 +36,7 @@ export default function PopupUi() {
 		ProductDataSchema | undefined | null
 	>(cachedProductData());
 
-	const [altProducts, _setAltProducts] = createStore<ProductDataSchema[]>([]);
+	const [altProducts, setAltProducts] = createStore<ProductDataSchema[]>([]);
 
 	createEffect(
 		on(mainProduct, async (mainProduct) => {
@@ -60,7 +63,18 @@ export default function PopupUi() {
 					<div class="flex h-full flex-col gap-4">
 						<PopupMainProduct mainProduct={product()} />
 
-						<Show when={altProducts.length}>
+						<Show
+							fallback={
+								<div class="flex flex-col items-center justify-center gap-4">
+									<p class="text-base">Search for alternatives?</p>
+									<PopupAltProductSearchButton
+										mainProductName={product().name}
+										setAltProducts={setAltProducts}
+									/>
+								</div>
+							}
+							when={altProducts.length}
+						>
 							<PopupAltProducts products={altProducts} />
 						</Show>
 					</div>
