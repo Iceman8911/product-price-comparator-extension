@@ -1,4 +1,8 @@
-import type { UrlSchema } from "@shopping-optimizer/shared";
+import { clone, type UrlSchema } from "@shopping-optimizer/shared";
+import {
+	DEFAULT_EXTENSION_SETTINGS,
+	type ExtensionSettingsSchema,
+} from "@/models/storage";
 import type { ProductDataSchema } from "../../shared/src/models/product";
 import { StorageKey } from "./constants";
 
@@ -8,6 +12,12 @@ export const getCachedProductDataForSite = (siteUrl: UrlSchema) => {
 
 	return storage.defineItem<ProductDataSchema>(key);
 };
+
+export const extensionSettingsStorageItem =
+	storage.defineItem<ExtensionSettingsSchema>(StorageKey.SETTINGS, {
+		fallback: clone(DEFAULT_EXTENSION_SETTINGS),
+		init: () => clone(DEFAULT_EXTENSION_SETTINGS),
+	});
 
 // export const defaultGeneralSettingsStorageItem = storage.defineItem(
 // 	DEFAULT_SETTINGS_GENERAL,

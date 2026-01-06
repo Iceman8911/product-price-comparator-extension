@@ -20,6 +20,8 @@ export const getActiveTabUrl = async () => {
 };
 
 export enum StorageKey {
+	SETTINGS = "sync:settings",
+
 	CACHED_PRODUCT_DATA_FOR_SITE_PREFIX = "session:cachedProduct-",
 }
 
