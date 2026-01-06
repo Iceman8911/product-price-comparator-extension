@@ -9,7 +9,7 @@ import {
 } from "@/shared/storage";
 import type { ProductDataSchema } from "../../../shared/src/models/product";
 
-type DetectProductOnCurrentSiteButtonProps = {
+type SharedProps = {
 	setMainProduct: Setter<ProductDataSchema | undefined | null>;
 	activeTab: {
 		url: UrlSchema;
@@ -17,11 +17,14 @@ type DetectProductOnCurrentSiteButtonProps = {
 	};
 };
 
+type DetectProductOnCurrentSiteButtonProps = SharedProps & {
+	isDetectingProduct: boolean;
+	setIsDetectingProduct: Setter<boolean>;
+};
+
 function DetectProductOnCurrentSiteButton(
 	props: DetectProductOnCurrentSiteButtonProps,
 ) {
-	const [isDetectingProduct, setIsDetectingProduct] = createSignal(false);
-
 	const handleBtnClick = async () => {
 		const cachedProductData = await getCachedProductDataForSite(
 			props.activeTab.url,
@@ -32,7 +35,7 @@ function DetectProductOnCurrentSiteButton(
 			return;
 		}
 
-		setIsDetectingProduct(true);
+		props.setIsDetectingProduct(true);
 
 		try {
 			const possibleProductData = await sendExtensionMessage(
@@ -49,19 +52,19 @@ function DetectProductOnCurrentSiteButton(
 			);
 		}
 
-		setIsDetectingProduct(false);
+		props.setIsDetectingProduct(false);
 	};
 
 	return (
 		<BaseButton
 			aria-label="Detect Product on Current Site"
 			class="btn-circle btn-primary size-14"
-			disabled={isDetectingProduct()}
+			disabled={props.isDetectingProduct}
 			onClick={handleBtnClick}
 		>
 			<Show
 				fallback={<div class="loading loading-spinner size-8"></div>}
-				when={!isDetectingProduct()}
+				when={!props.isDetectingProduct}
 			>
 				<SearchIcon class="size-8" />
 			</Show>
@@ -69,18 +72,29 @@ function DetectProductOnCurrentSiteButton(
 	);
 }
 
-type NoProductDetectedOnCurrentSiteYetUiProps =
-	DetectProductOnCurrentSiteButtonProps & {};
+type NoProductDetectedOnCurrentSiteYetUiProps = SharedProps;
 
 export default function NoProductDetectedOnCurrentSiteYetUi(
 	props: NoProductDetectedOnCurrentSiteYetUiProps,
 ) {
+	const [isDetectingProduct, setIsDetectingProduct] = createSignal(false);
+
 	return (
 		<div class="flex flex-col items-center justify-center gap-8">
 			<h2 class="text-center text-base">
-				Click the button below to begin product detection.
+				<Show
+					fallback={"Click the button below to begin product detection."}
+					when={isDetectingProduct()}
+				>
+					Please wait...
+				</Show>
 			</h2>
-			<DetectProductOnCurrentSiteButton {...props} />
+			<DetectProductOnCurrentSiteButton
+				activeTab={props.activeTab}
+				isDetectingProduct={isDetectingProduct()}
+				setIsDetectingProduct={setIsDetectingProduct}
+				setMainProduct={props.setMainProduct}
+			/>
 		</div>
 	);
 }
