@@ -10,5 +10,6 @@ export * from "./utils/fetch";
 export * from "./utils/phind";
 export * from "./utils/random";
 export * from "./utils/scraping/index";
+export * from "./utils/search-engine";
 export * from "./utils/string";
 export * from "./utils/type";
