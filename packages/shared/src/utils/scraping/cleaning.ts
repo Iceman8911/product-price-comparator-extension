@@ -39,7 +39,14 @@ function cleanRatingString(ratingStr: string): ProductDataRatingSchema {
 
 function cleanUrlString(imgSrc: string): UrlSchema {
 	try {
-		return v.parse(UrlSchema, genericCleaner(imgSrc));
+		let urlToClean = genericCleaner(imgSrc);
+
+		// Protocol-relative url
+		if (urlToClean.startsWith("//")) {
+			urlToClean = `https:${urlToClean}`;
+		}
+
+		return v.parse(UrlSchema, urlToClean);
 	} catch {
 		console.warn(
 			"Image source string,",
