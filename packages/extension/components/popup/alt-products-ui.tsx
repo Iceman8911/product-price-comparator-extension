@@ -63,12 +63,14 @@ type PopupAltProductsProps = { products: ReadonlyArray<ProductDataSchema> };
 /** Displays the detected product info, and allows the user to search for similar ones  */
 export function PopupAltProducts(props: PopupAltProductsProps) {
 	return (
-		<section>
+		<section class="flex grow flex-col contain-size">
 			<h2 class="mb-2 font-semibold text-base"> Alternatives</h2>
 
-			<For each={props.products}>
-				{(product) => <PopupProductCard product={product} />}
-			</For>
+			<div class="flex grow flex-col gap-4 overflow-auto contain-size">
+				<For each={props.products}>
+					{(product) => <PopupProductCard product={product} />}
+				</For>
+			</div>
 		</section>
 	);
 }
