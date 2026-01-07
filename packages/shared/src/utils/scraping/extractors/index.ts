@@ -18,7 +18,7 @@ const SUPPORTED_SITE_PRODUCT_DATA_EXTRACTOR = {
 	[key in SupportedSitePatterns]?: ProductDataExtractor;
 };
 
-const SUPPORTED_SITE_PRODUCT_DATA_MATCH_PATTERNS_AND_EXTRACTORS =
+export const SUPPORTED_SITE_PRODUCT_DATA_MATCH_PATTERNS_AND_EXTRACTORS =
 	Object.entries(SUPPORTED_SITE_PRODUCT_DATA_EXTRACTOR).map(
 		(entry) => [new MatchPattern(entry[0]), entry[1]] as const,
 	);
