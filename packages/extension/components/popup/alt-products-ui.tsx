@@ -4,7 +4,7 @@ import {
 } from "@shopping-optimizer/shared";
 import SearchIcon from "lucide-solid/icons/search";
 import type { SetStoreFunction } from "solid-js/store";
-import { extractProductDataFromUrls } from "@/entrypoints/background/scraping";
+import { extractProductDataFromUrls } from "@/shared/scraping";
 import { getSearchResults } from "@/shared/search";
 import { getCachedProductDataForSite } from "@/shared/storage";
 import type { ProductDataSchema } from "../../../shared/src/models/product";
