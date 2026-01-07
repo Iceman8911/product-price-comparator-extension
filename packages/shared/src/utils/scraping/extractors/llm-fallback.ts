@@ -114,7 +114,7 @@ export const llmProductDataExtractor = async (
 	);
 
 	const combinedResult = await llmQuerier(
-		`${getDataCoalescerQueryString({ name: title, store: siteName, url: window.location.href })}${JSON.stringify(partialResults)}`,
+		`${getDataCoalescerQueryString({ name: title, store: siteName, url: documentArg.location.href })}${JSON.stringify(partialResults)}`,
 	);
 
 	try {
