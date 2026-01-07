@@ -48,7 +48,7 @@ export const OpenSerpSearchQuerySchema = v.object({
 	text: v.string(),
 });
 
-type OpenSerpSearchQuerySchema = v.InferOutput<
+export type OpenSerpSearchQuerySchema = v.InferOutput<
 	typeof OpenSerpSearchQuerySchema
 >;
 
