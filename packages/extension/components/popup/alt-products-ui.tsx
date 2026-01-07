@@ -1,3 +1,7 @@
+import {
+	isLikelyShoppingUrl,
+	type UrlSchema,
+} from "@shopping-optimizer/shared";
 import SearchIcon from "lucide-solid/icons/search";
 import type { SetStoreFunction } from "solid-js/store";
 import { extractProductDataFromUrls } from "@/entrypoints/background/scraping";
@@ -26,7 +30,16 @@ export function PopupAltProductSearchButton(
 				text: props.mainProductName,
 			});
 
-			const sitesToTryScraping = productSearchResults.map((res) => res.url);
+			const sitesToTryScraping = productSearchResults.reduce<UrlSchema[]>(
+				(validUrls, { url }) => {
+					if (isLikelyShoppingUrl(url)) {
+						validUrls.push(url);
+					}
+
+					return validUrls;
+				},
+				[],
+			);
 
 			const scrapedProductData = await extractProductDataFromUrls(
 				...sitesToTryScraping,
