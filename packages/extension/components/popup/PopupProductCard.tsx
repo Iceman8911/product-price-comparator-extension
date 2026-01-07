@@ -19,9 +19,15 @@ export function PopupProductCard(props: { product: ProductDataSchema }) {
 				<h3 class="card-title w-70 overflow-clip overflow-x-auto whitespace-nowrap text-primary">
 					{props.product.name}
 				</h3>
-				<p class="text-base">
-					{props.product.currency} {props.product.price}
-				</p>
+				<div class="flex items-center justify-between text-base">
+					<p class="text-accent">
+						{props.product.currency} {props.product.price}
+					</p>
+
+					<a class="link-info link" href={props.product.url} target="_blank">
+						Visit Site?
+					</a>
+				</div>
 				<div class="flex items-center justify-start gap-4">
 					<BaseRating
 						name={`Rating for ${props.product.name}- ${getRandomUUID()}`}
