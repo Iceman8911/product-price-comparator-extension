@@ -1,4 +1,7 @@
-import type { PhindAiQueryRestArgs } from "@shopping-optimizer/shared";
+import type {
+	OpenSerpSearchQuerySchema,
+	PhindAiQueryRestArgs,
+} from "@shopping-optimizer/shared";
 import type { sendQueryToPhindAiViaBackgroundWorker } from "@/utils/phind/backgound-script";
 import type { ProductDataSchema } from "../../../shared/src/models/product";
 import { MessageType } from "../constants";
@@ -11,4 +14,8 @@ export type MessagingProtocolMap = {
 	[MessageType.EXTRACT_PRODUCT_DATA_FROM_INJECTED_SITE](
 		shouldUseAi: boolean,
 	): ProductDataSchema | null;
+
+	[MessageType.FETCH_ALT_PRODUCT_DATA_FROM_SEARCH_QUERY_VIA_BACKGROUND_WORKER](
+		query: OpenSerpSearchQuerySchema,
+	): ReadonlyArray<ProductDataSchema>;
 };
