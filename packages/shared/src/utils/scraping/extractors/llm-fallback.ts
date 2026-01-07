@@ -77,7 +77,8 @@ export const llmProductDataExtractor = async (
 	if (typeof relevantDomData !== "string") return null;
 
 	const siteMetaTags = JSON.stringify(
-		new Defuddle(documentArg.cloneNode(true) as Document).parse().metaTags,
+		new Defuddle(documentArg.cloneNode(true) as Document, { url }).parse()
+			.metaTags,
 	);
 
 	// Last resort for more info, scrape generically

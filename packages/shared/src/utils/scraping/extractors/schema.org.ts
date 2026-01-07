@@ -203,6 +203,7 @@ export const schemaOrgProductDataExtractor: ProductDataExtractor = (
 
 	const { schemaOrgData, image, site, author, title } = new Defuddle(
 		documentArg.cloneNode(true) as Document,
+		{ url: ctxUrl },
 	).parse();
 
 	// No schemaOrgData so there's not much use going further
