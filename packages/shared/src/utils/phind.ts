@@ -1,3 +1,4 @@
+import pLimit from "p-limit";
 import * as v from "valibot";
 
 const PHIND_AI_ENDPOINT = "https://www.phind.com/api/ai_answer";
@@ -14,15 +15,19 @@ export type PhindAiQueryRestArgs = ReadonlyArray<PHIND_AI_BODY_QUERY>;
 
 const PhindAiResponse = v.object({ answer: v.string() });
 
+const requestLimitFn = pLimit(7);
+
 export async function sendQueryToPhindAi(
 	...bodyQueries: PhindAiQueryRestArgs
 ): Promise<ReadonlyArray<string>> {
 	const results = await Promise.allSettled(
 		bodyQueries.map((query) =>
-			fetch(PHIND_AI_ENDPOINT, {
-				body: JSON.stringify(query),
-				method: "POST",
-			}).then((res) => res.json()),
+			requestLimitFn(() =>
+				fetch(PHIND_AI_ENDPOINT, {
+					body: JSON.stringify(query),
+					method: "POST",
+				}).then((res) => res.json()),
+			),
 		),
 	);
 
