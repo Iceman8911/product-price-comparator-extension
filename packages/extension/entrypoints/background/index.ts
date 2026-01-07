@@ -1,6 +1,13 @@
-import { sendQueryToPhindAi } from "@shopping-optimizer/shared";
+import {
+	isLikelyShoppingUrl,
+	sendQueryToPhindAi,
+	type UrlSchema,
+} from "@shopping-optimizer/shared";
 import { MessageType } from "@/shared/constants";
 import { onExtensionMessage } from "@/shared/messaging/extension";
+import { extractProductDataFromUrls } from "@/shared/scraping";
+import { getSearchResults } from "@/shared/search";
+import { getCachedProductDataForSite } from "@/shared/storage";
 
 function sendPromptToPhindAiHandler() {
 	onExtensionMessage(
@@ -9,6 +16,43 @@ function sendPromptToPhindAiHandler() {
 	);
 }
 
+async function extractAltProductDataFromUrlsHandler() {
+	onExtensionMessage(
+		MessageType.FETCH_ALT_PRODUCT_DATA_FROM_SEARCH_QUERY_VIA_BACKGROUND_WORKER,
+		async ({ data: { productName, query } }) => {
+			const productSearchResults = await getSearchResults(query);
+
+			const sitesToTryScraping = productSearchResults.reduce<UrlSchema[]>(
+				(validUrls, { url }) => {
+					if (isLikelyShoppingUrl(url)) {
+						validUrls.push(url);
+					}
+
+					return validUrls;
+				},
+				[],
+			);
+
+			const scrapedProductData = await extractProductDataFromUrls(
+				...sitesToTryScraping,
+			);
+			const filteredProducts = scrapedProductData.filter(
+				(data) => data.name !== productName,
+			);
+
+			// Cache product data
+			setTimeout(() => {
+				for (const product of filteredProducts) {
+					getCachedProductDataForSite(product.url).setValue(product);
+				}
+			}, 1000);
+
+			return filteredProducts;
+		},
+	);
+}
+
 export default defineBackground(async () => {
 	sendPromptToPhindAiHandler();
+	extractAltProductDataFromUrlsHandler();
 });

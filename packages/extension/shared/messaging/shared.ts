@@ -15,7 +15,8 @@ export type MessagingProtocolMap = {
 		shouldUseAi: boolean,
 	): ProductDataSchema | null;
 
-	[MessageType.FETCH_ALT_PRODUCT_DATA_FROM_SEARCH_QUERY_VIA_BACKGROUND_WORKER](
-		query: OpenSerpSearchQuerySchema,
-	): ReadonlyArray<ProductDataSchema>;
+	[MessageType.FETCH_ALT_PRODUCT_DATA_FROM_SEARCH_QUERY_VIA_BACKGROUND_WORKER](arg: {
+		query: OpenSerpSearchQuerySchema;
+		productName: string;
+	}): ReadonlyArray<ProductDataSchema>;
 };

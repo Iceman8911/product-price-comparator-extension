@@ -1,12 +1,7 @@
-import {
-	isLikelyShoppingUrl,
-	type UrlSchema,
-} from "@shopping-optimizer/shared";
 import SearchIcon from "lucide-solid/icons/search";
 import type { SetStoreFunction } from "solid-js/store";
-import { extractProductDataFromUrls } from "@/shared/scraping";
-import { getSearchResults } from "@/shared/search";
-import { getCachedProductDataForSite } from "@/shared/storage";
+import { MessageType } from "@/shared/constants";
+import { sendExtensionMessage } from "@/shared/messaging/extension";
 import type { ProductDataSchema } from "../../../shared/src/models/product";
 import { PopupProductCard } from "./PopupProductCard";
 
@@ -24,38 +19,19 @@ export function PopupAltProductSearchButton(
 		setIsSearchingForAlts(true);
 
 		try {
-			const productSearchResults = await getSearchResults({
-				engines: ["duckduckgo"],
-				limit: 15,
-				text: `Shopping for ${props.mainProductName}`,
-			});
-
-			const sitesToTryScraping = productSearchResults.reduce<UrlSchema[]>(
-				(validUrls, { url }) => {
-					if (isLikelyShoppingUrl(url)) {
-						validUrls.push(url);
-					}
-
-					return validUrls;
+			const altProducts = await sendExtensionMessage(
+				MessageType.FETCH_ALT_PRODUCT_DATA_FROM_SEARCH_QUERY_VIA_BACKGROUND_WORKER,
+				{
+					productName: props.mainProductName,
+					query: {
+						engines: ["duckduckgo"],
+						limit: 15,
+						text: `Shopping for ${props.mainProductName}`,
+					},
 				},
-				[],
 			);
 
-			const scrapedProductData = await extractProductDataFromUrls(
-				...sitesToTryScraping,
-			);
-			const filteredProducts = scrapedProductData.filter(
-				(data) => data.name !== props.mainProductName,
-			);
-
-			props.setAltProducts(filteredProducts);
-
-			// Cache product data
-			setTimeout(() => {
-				for (const product of filteredProducts) {
-					getCachedProductDataForSite(product.url).setValue(product);
-				}
-			}, 1000);
+			props.setAltProducts(altProducts);
 		} catch (e) {
 			console.error("Alt product searching failed with:", e);
 		}
