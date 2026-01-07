@@ -9,7 +9,8 @@ export default defineConfig({
 		description:
 			"Compares the product you're browsing with close alternatives from other popular sites to help you make the best choice.",
 		name: "Shopping Optimizer",
-		permissions: ["activeTab", "storage", "offscreen"],
+		optional_permissions: ["tabs"],
+		permissions: ["activeTab", "storage"],
 		short_name: "Product Price Optimiser",
 		version: "0.0.1",
 		web_accessible_resources: [
