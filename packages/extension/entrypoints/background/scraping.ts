@@ -1,4 +1,5 @@
 import {
+	clone,
 	extractProductDataFromDocumentOrWindow,
 	fixCaughtErrorType,
 	sendQueryToPhindAi,
@@ -10,14 +11,24 @@ import {
 } from "@/shared/storage";
 import type { ProductDataSchema } from "../../../shared/src/models/product";
 
-type ExtractedProductResults = ProductDataSchema[];
+type PartiallyProcessedProductResults = {
+	/** Successfully extracted products */
+	products: ProductDataSchema[];
+	/** Urls for sites where the products could not properly be extracted */
+	pendingUrls: UrlSchema[];
+};
+
+const DEFAULT_PARTIALLY_PROCESSED_RESULTS = {
+	pendingUrls: [],
+	products: [],
+} as const satisfies PartiallyProcessedProductResults;
 
 const domParser = new DOMParser();
 
 async function extractProductDataFromUrlsViaSimpleDomParsing(
 	enableAi: boolean,
 	...urls: ReadonlyArray<UrlSchema>
-): Promise<ExtractedProductResults> {
+): Promise<PartiallyProcessedProductResults> {
 	try {
 		const siteDocumentsAndUrls = await Promise.allSettled(
 			urls.map((url) =>
@@ -40,35 +51,46 @@ async function extractProductDataFromUrlsViaSimpleDomParsing(
 			),
 		);
 
-		const arrayOfPossibleProducts = await Promise.all(
-			siteDocumentsAndUrls.map(({ doc, url }) =>
-				extractProductDataFromDocumentOrWindow([
-					doc,
-					enableAi
-						? (...queries) =>
-								sendQueryToPhindAi(
-									...queries.map((query) => ({ query, search: false })),
-								)
-						: undefined,
-					url,
-				]),
-			),
-		);
+		const partiallyProcessedProductResults: PartiallyProcessedProductResults =
+			clone(DEFAULT_PARTIALLY_PROCESSED_RESULTS);
 
-		return arrayOfPossibleProducts.filter(Boolean) as ProductDataSchema[];
+		const productDataExtractionPromises: Promise<void>[] = [];
+
+		for (const { doc, url } of siteDocumentsAndUrls) {
+			const promise = extractProductDataFromDocumentOrWindow([
+				doc,
+				enableAi
+					? (...queries) =>
+							sendQueryToPhindAi(
+								...queries.map((query) => ({ query, search: false })),
+							)
+					: undefined,
+				url,
+			]).then((possibleProduct) => {
+				if (possibleProduct)
+					partiallyProcessedProductResults.products.push(possibleProduct);
+				else partiallyProcessedProductResults.pendingUrls.push(url);
+			});
+
+			productDataExtractionPromises.push(promise);
+		}
+
+		await Promise.all(productDataExtractionPromises);
+
+		return partiallyProcessedProductResults;
 	} catch (e) {
 		console.error(
 			"Background script failed to extract product data from html with error:",
 			fixCaughtErrorType(e),
 		);
 
-		return [];
+		return clone(DEFAULT_PARTIALLY_PROCESSED_RESULTS);
 	}
 }
 
 export async function extractProductDataFromUrls(
 	...urls: ReadonlyArray<UrlSchema>
-): Promise<ExtractedProductResults> {
+): Promise<ProductDataSchema[]> {
 	try {
 		const { enableAi: shouldEnableAi } =
 			await extensionSettingsStorageItem.getValue();
@@ -81,24 +103,26 @@ export async function extractProductDataFromUrls(
 			}),
 		);
 
-		const validProducts: ProductDataSchema[] = [];
-		const uncachedUrls: UrlSchema[] = [];
+		const partiallyProcessedProductResults: PartiallyProcessedProductResults =
+			clone(DEFAULT_PARTIALLY_PROCESSED_RESULTS);
 
 		for (const { url, val: possibleProduct } of cachedProducts) {
 			if (possibleProduct) {
-				validProducts.push(possibleProduct);
+				partiallyProcessedProductResults.products.push(possibleProduct);
 			} else {
-				uncachedUrls.push(url);
+				partiallyProcessedProductResults.pendingUrls.push(url);
 			}
 		}
 
 		const extractedProductsViaHtmlParsing =
 			await extractProductDataFromUrlsViaSimpleDomParsing(
 				shouldEnableAi,
-				...uncachedUrls,
+				...partiallyProcessedProductResults.pendingUrls,
 			);
 
-		return validProducts.concat(extractedProductsViaHtmlParsing);
+		return partiallyProcessedProductResults.products.concat(
+			extractedProductsViaHtmlParsing.products,
+		);
 	} catch (e) {
 		console.error(
 			"Background script failed to extract product data from url:",
