@@ -27,7 +27,7 @@ export function PopupAltProductSearchButton(
 			const productSearchResults = await getSearchResults({
 				engines: ["duckduckgo"],
 				limit: 15,
-				text: props.mainProductName,
+				text: `Shopping for ${props.mainProductName}`,
 			});
 
 			const sitesToTryScraping = productSearchResults.reduce<UrlSchema[]>(
