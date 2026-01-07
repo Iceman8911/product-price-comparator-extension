@@ -32,7 +32,9 @@ export function PopupAltProductSearchButton(
 			);
 
 			props.setAltProducts(
-				scrapedProductData.filter(Boolean) as ProductDataSchema[],
+				scrapedProductData.filter(
+					(data) => data && data.name !== props.mainProductName,
+				) as ProductDataSchema[],
 			);
 		} catch (e) {
 			console.error("Alt product searching failed with:", e);
