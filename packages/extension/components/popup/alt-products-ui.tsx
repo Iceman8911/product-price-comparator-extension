@@ -2,6 +2,7 @@ import SearchIcon from "lucide-solid/icons/search";
 import type { SetStoreFunction } from "solid-js/store";
 import { extractProductDataFromUrls } from "@/entrypoints/background/scraping";
 import { getSearchResults } from "@/shared/search";
+import { getCachedProductDataForSite } from "@/shared/storage";
 import type { ProductDataSchema } from "../../../shared/src/models/product";
 import { PopupProductCard } from "./PopupProductCard";
 
@@ -30,12 +31,18 @@ export function PopupAltProductSearchButton(
 			const scrapedProductData = await extractProductDataFromUrls(
 				...sitesToTryScraping,
 			);
-
-			props.setAltProducts(
-				scrapedProductData.filter(
-					(data) => data && data.name !== props.mainProductName,
-				) as ProductDataSchema[],
+			const filteredProducts = scrapedProductData.filter(
+				(data) => data.name !== props.mainProductName,
 			);
+
+			props.setAltProducts(filteredProducts);
+
+			// Cache product data
+			setTimeout(() => {
+				for (const product of filteredProducts) {
+					getCachedProductDataForSite(product.url).setValue(product);
+				}
+			}, 1000);
 		} catch (e) {
 			console.error("Alt product searching failed with:", e);
 		}

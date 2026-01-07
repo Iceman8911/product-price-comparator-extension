@@ -4,10 +4,13 @@ import {
 	sendQueryToPhindAi,
 	type UrlSchema,
 } from "@shopping-optimizer/shared";
-import { extensionSettingsStorageItem } from "@/shared/storage";
+import {
+	extensionSettingsStorageItem,
+	getCachedProductDataForSite,
+} from "@/shared/storage";
 import type { ProductDataSchema } from "../../../shared/src/models/product";
 
-type ExtractedProductResults = (ProductDataSchema | null)[];
+type ExtractedProductResults = ProductDataSchema[];
 
 const domParser = new DOMParser();
 
@@ -37,7 +40,7 @@ async function extractProductDataFromUrlsViaSimpleDomParsing(
 			),
 		);
 
-		return Promise.all(
+		const arrayOfPossibleProducts = await Promise.all(
 			siteDocumentsAndUrls.map(({ doc, url }) =>
 				extractProductDataFromDocumentOrWindow([
 					doc,
@@ -51,6 +54,8 @@ async function extractProductDataFromUrlsViaSimpleDomParsing(
 				]),
 			),
 		);
+
+		return arrayOfPossibleProducts.filter(Boolean) as ProductDataSchema[];
 	} catch (e) {
 		console.error(
 			"Background script failed to extract product data from html with error:",
@@ -68,10 +73,32 @@ export async function extractProductDataFromUrls(
 		const { enableAi: shouldEnableAi } =
 			await extensionSettingsStorageItem.getValue();
 
-		return extractProductDataFromUrlsViaSimpleDomParsing(
-			shouldEnableAi,
-			...urls,
+		const cachedProducts = await Promise.all(
+			urls.map(async (url) => {
+				const cachedValue = await getCachedProductDataForSite(url).getValue();
+
+				return { url, val: cachedValue };
+			}),
 		);
+
+		const validProducts: ProductDataSchema[] = [];
+		const uncachedUrls: UrlSchema[] = [];
+
+		for (const { url, val: possibleProduct } of cachedProducts) {
+			if (possibleProduct) {
+				validProducts.push(possibleProduct);
+			} else {
+				uncachedUrls.push(url);
+			}
+		}
+
+		const extractedProductsViaHtmlParsing =
+			await extractProductDataFromUrlsViaSimpleDomParsing(
+				shouldEnableAi,
+				...uncachedUrls,
+			);
+
+		return validProducts.concat(extractedProductsViaHtmlParsing);
 	} catch (e) {
 		console.error(
 			"Background script failed to extract product data from url:",
