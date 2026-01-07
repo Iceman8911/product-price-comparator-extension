@@ -105,7 +105,6 @@ const documentScraperExtractor = createDocumentScraperProductDataExtractor(
 			/** Jiji doesn't expose ratings anywhere */
 			rating: `${PRODUCT_RATING_RANGE.MIN}`,
 			store: STORE_NAME,
-			url: documentArg.location.href,
 		};
 	},
 );

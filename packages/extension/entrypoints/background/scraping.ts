@@ -11,25 +11,43 @@ type ExtractedProductResults = (ProductDataSchema | null)[];
 
 const domParser = new DOMParser();
 
-async function extractProductDataFromHtmlStrings(
+async function extractProductDataFromUrlsViaSimpleDomParsing(
 	enableAi: boolean,
-	...siteHtmlStrings: ReadonlyArray<string>
+	...urls: ReadonlyArray<UrlSchema>
 ): Promise<ExtractedProductResults> {
 	try {
-		const siteDocuments = siteHtmlStrings.map((htmlString) =>
-			domParser.parseFromString(htmlString, "text/html"),
+		const siteDocumentsAndUrls = await Promise.allSettled(
+			urls.map((url) =>
+				fetch(url)
+					.then((res) => res.text())
+					.then((html) => ({
+						doc: domParser.parseFromString(html, "text/html"),
+						url,
+					})),
+			),
+		).then((settledResults) =>
+			settledResults.reduce<{ doc: Document; url: UrlSchema }[]>(
+				(successfulResults, settledResult) => {
+					if (settledResult.status === "fulfilled")
+						successfulResults.push(settledResult.value);
+
+					return successfulResults;
+				},
+				[],
+			),
 		);
 
 		return Promise.all(
-			siteDocuments.map((siteDocument) =>
+			siteDocumentsAndUrls.map(({ doc, url }) =>
 				extractProductDataFromDocumentOrWindow([
-					siteDocument,
+					doc,
 					enableAi
 						? (...queries) =>
 								sendQueryToPhindAi(
 									...queries.map((query) => ({ query, search: false })),
 								)
 						: undefined,
+					url,
 				]),
 			),
 		);
@@ -47,27 +65,13 @@ export async function extractProductDataFromUrls(
 	...urls: ReadonlyArray<UrlSchema>
 ): Promise<ExtractedProductResults> {
 	try {
-		const shouldEnableAiPromise = extensionSettingsStorageItem
-			.getValue()
-			.then((settings) => settings.enableAi);
+		const { enableAi: shouldEnableAi } =
+			await extensionSettingsStorageItem.getValue();
 
-		const siteHtmlsPromise = Promise.allSettled(
-			urls.map((url) => fetch(url).then((res) => res.text())),
-		).then((settledResults) =>
-			settledResults.reduce<string[]>((successfulResults, settledResult) => {
-				if (settledResult.status === "fulfilled")
-					successfulResults.push(settledResult.value);
-
-				return successfulResults;
-			}, []),
+		return extractProductDataFromUrlsViaSimpleDomParsing(
+			shouldEnableAi,
+			...urls,
 		);
-
-		const [shouldEnableAi, siteHtmls] = await Promise.all([
-			shouldEnableAiPromise,
-			siteHtmlsPromise,
-		]);
-
-		return extractProductDataFromHtmlStrings(shouldEnableAi, ...siteHtmls);
 	} catch (e) {
 		console.error(
 			"Background script failed to extract product data from url:",

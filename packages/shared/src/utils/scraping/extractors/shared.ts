@@ -2,6 +2,7 @@ import {
 	fixCaughtErrorType,
 	NOT_AVAILABLE,
 	SCRAPED_PRODUCT_DATA_CLEANER,
+	type UrlSchema,
 } from "@shopping-optimizer/shared";
 import * as v from "valibot";
 import { ProductDataSchema } from "../../../../../shared/src/models/product";
@@ -10,20 +11,28 @@ import { ProductDataSchema } from "../../../../../shared/src/models/product";
 export type ProductDataExtractor = (
 	// biome-ignore lint/suspicious/noExplicitAny: <To cover sites that add extra props to the window object>
 	siteContext: (Window & Record<string, any>) | Document,
+	/** Defaults to the `location.href` prop of `siteContext`.
+	 *
+	 * Can be manually given in cases where the afore mentioned prop path fails to resolve. Like in cases with the DOMParser, where that `location` prop of the Document is null
+	 */
+	url?: UrlSchema,
 ) => ProductDataSchema | null;
 
 export function createDocumentScraperProductDataExtractor(
 	productDataCallback: (documentArg: Document) => {
-		[key in keyof ProductDataSchema]: string | undefined;
+		[key in keyof Omit<ProductDataSchema, "url">]: string | undefined;
 	},
 ): ProductDataExtractor {
-	const documentScraperExtractor: ProductDataExtractor = (ctx) => {
+	const documentScraperExtractor: ProductDataExtractor = (
+		ctx,
+		ctxUrl = ctx.location.href,
+	) => {
 		const documentArg = ctx instanceof Document ? ctx : ctx.document;
 
-		const { currency, imgSrc, name, price, rating, store, url } =
+		const { currency, imgSrc, name, price, rating, store } =
 			productDataCallback(documentArg);
 
-		if (!currency || !name || !price || !rating || !imgSrc || !url) {
+		if (!currency || !name || !price || !rating || !imgSrc) {
 			console.warn(
 				"Undefined data in one of the variables:",
 				currency,
@@ -31,7 +40,6 @@ export function createDocumentScraperProductDataExtractor(
 				price,
 				rating,
 				imgSrc,
-				url,
 			);
 
 			return null;
@@ -44,7 +52,7 @@ export function createDocumentScraperProductDataExtractor(
 			price: SCRAPED_PRODUCT_DATA_CLEANER.price(price),
 			rating: SCRAPED_PRODUCT_DATA_CLEANER.rating(rating),
 			store: store ?? NOT_AVAILABLE,
-			url: SCRAPED_PRODUCT_DATA_CLEANER.url(url),
+			url: SCRAPED_PRODUCT_DATA_CLEANER.url(ctxUrl),
 		} as const satisfies ProductDataSchema;
 
 		return v.parse(ProductDataSchema, productData);
@@ -58,9 +66,15 @@ export function createCombinedProductDataExtractor(
 	windowGlobalExtractor: ProductDataExtractor,
 	documentScraperExtractor: ProductDataExtractor,
 ): ProductDataExtractor {
-	const combinedExtractor: ProductDataExtractor = (ctx) => {
+	const combinedExtractor: ProductDataExtractor = (
+		ctx,
+		ctxUrl = ctx.location.href,
+	) => {
 		try {
-			return windowGlobalExtractor(ctx) ?? documentScraperExtractor(ctx);
+			return (
+				windowGlobalExtractor(ctx, ctxUrl) ??
+				documentScraperExtractor(ctx, ctxUrl)
+			);
 		} catch (e) {
 			console.warn(
 				storeName,
@@ -69,7 +83,7 @@ export function createCombinedProductDataExtractor(
 			);
 
 			try {
-				return documentScraperExtractor(ctx);
+				return documentScraperExtractor(ctx, ctxUrl);
 			} catch (e) {
 				console.warn(
 					storeName,

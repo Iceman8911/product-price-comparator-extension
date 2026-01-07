@@ -23,12 +23,12 @@ const SUPPORTED_SITE_PRODUCT_DATA_MATCH_PATTERNS_AND_EXTRACTORS =
 		(entry) => [new MatchPattern(entry[0]), entry[1]] as const,
 	);
 
-const backupProductDataExtractor = ([window, llmQuerier]: Parameters<
+const backupProductDataExtractor = ([ctx, llmQuerier, url]: Parameters<
 	typeof llmProductDataExtractor
 >) => {
 	return (
-		schemaOrgProductDataExtractor(window) ??
-		llmProductDataExtractor(window, llmQuerier)
+		schemaOrgProductDataExtractor(ctx, url) ??
+		llmProductDataExtractor(ctx, llmQuerier, url)
 	);
 };
 
@@ -36,10 +36,11 @@ const backupProductDataExtractor = ([window, llmQuerier]: Parameters<
 export const extractProductDataFromDocumentOrWindow = async ([
 	documentArg,
 	llmQuerier,
+	url,
 ]: Parameters<
 	typeof llmProductDataExtractor
 >): Promise<ProductDataSchema | null> => {
-	const siteUrl = documentArg.location.href;
+	const siteUrl = url ?? documentArg.location.href;
 
 	const matchingSupportedExtractor =
 		SUPPORTED_SITE_PRODUCT_DATA_MATCH_PATTERNS_AND_EXTRACTORS.find(
@@ -50,10 +51,10 @@ export const extractProductDataFromDocumentOrWindow = async ([
 
 	if (matchingSupportedExtractor) {
 		return (
-			matchingSupportedExtractor[1](documentArg) ??
-			backupProductDataExtractor([documentArg, llmQuerier])
+			matchingSupportedExtractor[1](documentArg, url) ??
+			backupProductDataExtractor([documentArg, llmQuerier, url])
 		);
 	}
 
-	return backupProductDataExtractor([documentArg, llmQuerier]);
+	return backupProductDataExtractor([documentArg, llmQuerier, url]);
 };

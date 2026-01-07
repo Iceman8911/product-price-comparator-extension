@@ -60,10 +60,13 @@ const getDataCoalescerQueryString = (possibleInferredData: {
 const ProductDataSchemaKeys = Object.keys(ProductDataSchema.entries);
 
 export const llmProductDataExtractor = async (
-	documentArg: Document,
+	ctx: Document | Window,
 	llmQuerier?: LlmQuery | undefined,
+	url = ctx.location.href,
 ): Promise<ProductDataSchema | null> => {
 	if (!llmQuerier) return null;
+
+	const documentArg = ctx instanceof Document ? ctx : ctx.document;
 
 	const extracted = extractRelevantDomData(documentArg);
 
@@ -114,7 +117,7 @@ export const llmProductDataExtractor = async (
 	);
 
 	const combinedResult = await llmQuerier(
-		`${getDataCoalescerQueryString({ name: title, store: siteName, url: documentArg.location.href })}${JSON.stringify(partialResults)}`,
+		`${getDataCoalescerQueryString({ name: title, store: siteName, url })}${JSON.stringify(partialResults)}`,
 	);
 
 	try {

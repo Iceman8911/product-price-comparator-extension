@@ -75,7 +75,6 @@ const documentScraperExtractor = createDocumentScraperProductDataExtractor(
 			price,
 			rating,
 			store: STORE_NAME,
-			url: ctx.location.href,
 		};
 	},
 );
