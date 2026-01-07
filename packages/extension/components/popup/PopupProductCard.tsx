@@ -29,9 +29,12 @@ export function PopupProductCard(props: { product: ProductDataSchema }) {
 						readonly={true}
 					/>
 
-					<div>
+					<div class="truncate">
 						(<span class="text-info">{props.product.rating}</span> on{" "}
-						<span class="text-secondary">{props.product.store}</span>)
+						<span class="inline-block max-w-[10ch] text-secondary">
+							{props.product.store}
+						</span>
+						)
 					</div>
 				</div>
 			</div>
