@@ -5,9 +5,9 @@ import {
 } from "@shopping-optimizer/shared";
 import { MessageType } from "@/shared/constants";
 import { onExtensionMessage } from "@/shared/messaging/extension";
-import { extractProductDataFromUrls } from "@/shared/scraping";
 import { getSearchResults } from "@/shared/search";
 import { getCachedProductDataForSite } from "@/shared/storage";
+import { extractProductDataFromUrls } from "./scraping";
 
 function sendPromptToPhindAiHandler() {
 	onExtensionMessage(

@@ -8,7 +8,7 @@ import {
 	extensionSettingsStorageItem,
 	getCachedProductDataForSite,
 } from "@/shared/storage";
-import type { ProductDataSchema } from "../../shared/src/models/product";
+import type { ProductDataSchema } from "../../../shared/src/models/product";
 
 type ExtractedProductResults = ProductDataSchema[];
 
