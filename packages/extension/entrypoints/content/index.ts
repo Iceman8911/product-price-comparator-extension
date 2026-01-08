@@ -1,3 +1,4 @@
+import { isLikelyShoppingUrl } from "@shopping-optimizer/shared";
 import { MessageType } from "@/shared/constants";
 import {
 	onWindowMessage,
@@ -46,7 +47,10 @@ function broadcastReadyState() {
 }
 
 export default defineContentScript({
-	async main() {
+	main() {
+		// Since I can't specify the sites to match to, and attaching handlers to all pages is wasteful
+		if (!isLikelyShoppingUrl(window.location.href)) return;
+
 		injectProductDataExtractorScript();
 		triggerProductDetectionFromPopupHandler();
 		broadcastReadyState();
