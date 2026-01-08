@@ -3,7 +3,10 @@ import {
 	onWindowMessage,
 	sendWindowMessage,
 } from "@/shared/messaging/content-script";
-import { onExtensionMessage } from "@/shared/messaging/extension";
+import {
+	onExtensionMessage,
+	sendExtensionMessage,
+} from "@/shared/messaging/extension";
 import { sendQueryToPhindAiViaBackgroundWorker } from "@/utils/phind/backgound-script";
 
 function registerPhindAiMessageResponderFromInjectedScript() {
@@ -38,10 +41,15 @@ function injectProductDataExtractorScript() {
 	);
 }
 
+function broadcastReadyState() {
+	sendExtensionMessage(MessageType.CONTENT_SCRIPT_READY, true);
+}
+
 export default defineContentScript({
 	async main() {
 		injectProductDataExtractorScript();
 		triggerProductDetectionFromPopupHandler();
+		broadcastReadyState();
 	},
 	matches: ["<all_urls>"],
 	runAt: "document_start",

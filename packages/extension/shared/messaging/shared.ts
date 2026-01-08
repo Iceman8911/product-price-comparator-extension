@@ -19,4 +19,7 @@ export type MessagingProtocolMap = {
 		query: OpenSerpSearchQuerySchema;
 		productName: string;
 	}): ReadonlyArray<ProductDataSchema>;
+
+	/** Just for me to know when contentscripts in created tabs are ready */
+	[MessageType.CONTENT_SCRIPT_READY]: true;
 };
