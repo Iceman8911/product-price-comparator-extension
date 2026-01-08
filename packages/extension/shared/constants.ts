@@ -2,6 +2,7 @@
 
 import { UrlSchema } from "@shopping-optimizer/shared";
 import * as v from "valibot";
+import { getActiveTab } from "@/utils/tabs";
 
 export enum ExtensionData {
 	NAME = "Product Price Comparator",
@@ -13,7 +14,7 @@ export const DUMMY_TAB_URL = v.parse(UrlSchema, "https://foo.bar");
 
 export const getActiveTabUrl = async () => {
 	try {
-		return (await getActiveTabOrigin()) ?? DUMMY_TAB_URL;
+		return (await getActiveTab())?.url ?? DUMMY_TAB_URL;
 	} catch {
 		return v.parse(UrlSchema, location.href);
 	}
