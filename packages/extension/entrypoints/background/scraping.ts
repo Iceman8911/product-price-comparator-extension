@@ -3,6 +3,7 @@ import {
 	fixCaughtErrorType,
 	type UrlSchema,
 } from "@shopping-optimizer/shared";
+import pLimit from "p-limit";
 import { MessageType } from "@/shared/constants";
 import {
 	onExtensionMessage,
@@ -28,6 +29,8 @@ const DEFAULT_PARTIALLY_PROCESSED_RESULTS = {
 } as const satisfies PartiallyProcessedProductResults;
 
 const TAB_PRODUCT_EXTRACTION_WAIT_PERIOD_IN_MS = 10000;
+
+const BATCH_LIMITER = pLimit(4);
 
 async function createTabAndExtractProductData(arg: {
 	url: UrlSchema;
@@ -109,7 +112,7 @@ async function extractProductDataFromUrlsByLoadingTabsInHiddenWindow(
 	const partiallyProcessedProductResults: PartiallyProcessedProductResults =
 		clone(DEFAULT_PARTIALLY_PROCESSED_RESULTS);
 
-	const processingPromises: Promise<void>[] = urls.map(async (url) => {
+	const urlProcessingMapper = async (url: UrlSchema) => {
 		const possibleProductData = await createTabAndExtractProductData({
 			enableAi: shouldEnableAi,
 			url,
@@ -123,7 +126,11 @@ async function extractProductDataFromUrlsByLoadingTabsInHiddenWindow(
 		}
 
 		return;
-	});
+	};
+
+	const processingPromises: Promise<void>[] = urls.map((url) =>
+		BATCH_LIMITER(() => urlProcessingMapper(url)),
+	);
 
 	await Promise.all(processingPromises);
 
