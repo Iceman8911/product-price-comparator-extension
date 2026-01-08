@@ -1,7 +1,11 @@
-import { fixCaughtErrorType, type UrlSchema } from "@shopping-optimizer/shared";
+import {
+	fixCaughtErrorType,
+	isLikelyShoppingUrl,
+	type UrlSchema,
+} from "@shopping-optimizer/shared";
 import SearchIcon from "lucide-solid/icons/search";
 import type { Setter } from "solid-js";
-import { MessageType } from "@/shared/constants";
+import { getActiveTabUrl, MessageType } from "@/shared/constants";
 import { sendExtensionMessage } from "@/shared/messaging/extension";
 import {
 	extensionSettingsStorageItem,
@@ -72,29 +76,51 @@ function DetectProductOnCurrentSiteButton(
 	);
 }
 
+const REFETCH_INTERVAL = 1000;
+
 type NoProductDetectedOnCurrentSiteYetUiProps = SharedProps;
 
 export default function NoProductDetectedOnCurrentSiteYetUi(
 	props: NoProductDetectedOnCurrentSiteYetUiProps,
 ) {
+	const [isUserOnShoppingPage, { refetch: refetchIsUserOnShoppingPage }] =
+		createResource(async () => isLikelyShoppingUrl(await getActiveTabUrl()));
+
 	const [isDetectingProduct, setIsDetectingProduct] = createSignal(false);
 
+	onMount(() => {
+		const interval = setInterval(() => {
+			refetchIsUserOnShoppingPage();
+
+			if (isUserOnShoppingPage()) clearInterval(interval);
+		}, REFETCH_INTERVAL);
+
+		onCleanup(() => clearInterval(interval));
+	});
+
 	return (
-		<div class="flex flex-col items-center justify-center gap-8">
-			<h2 class="text-center text-base">
-				<Show
-					fallback={"Click the button below to begin product detection."}
-					when={isDetectingProduct()}
-				>
-					Please wait...
-				</Show>
-			</h2>
-			<DetectProductOnCurrentSiteButton
-				activeTab={props.activeTab}
-				isDetectingProduct={isDetectingProduct()}
-				setIsDetectingProduct={setIsDetectingProduct}
-				setMainProduct={props.setMainProduct}
-			/>
+		<div class="flex flex-col items-center justify-center gap-8 text-base">
+			<Show
+				fallback={
+					"Seems like you aren't on a shopping page. This extension can only function when you're on a product's page."
+				}
+				when={isUserOnShoppingPage()}
+			>
+				<h2 class="text-center">
+					<Show
+						fallback={"Click the button below to begin product detection."}
+						when={isDetectingProduct()}
+					>
+						Please wait...
+					</Show>
+				</h2>
+				<DetectProductOnCurrentSiteButton
+					activeTab={props.activeTab}
+					isDetectingProduct={isDetectingProduct()}
+					setIsDetectingProduct={setIsDetectingProduct}
+					setMainProduct={props.setMainProduct}
+				/>
+			</Show>
 		</div>
 	);
 }
