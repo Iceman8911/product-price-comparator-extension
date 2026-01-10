@@ -36,8 +36,12 @@ async function extractAltProductDataFromUrlsHandler() {
 			const scrapedProductData = await extractProductDataFromUrls(
 				...sitesToTryScraping,
 			);
+
+			// Filter out duplicates
 			const filteredProducts = scrapedProductData.filter(
-				(data) => data.name !== productName,
+				(data) =>
+					data.name !== productName &&
+					!scrapedProductData.find((product) => product.name === data.name),
 			);
 
 			// Cache product data
