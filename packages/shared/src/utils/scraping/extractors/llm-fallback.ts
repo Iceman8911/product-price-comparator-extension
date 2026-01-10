@@ -4,6 +4,7 @@ import Defuddle from "defuddle";
 import * as v from "valibot";
 import { ProductDataSchema } from "../../../models/product";
 import { fixCaughtErrorType } from "../../error";
+import { getResultsOfMultipleSelectors } from "../../selector";
 import { chunkifyLargeString } from "../../string";
 
 type ReadabilityParseResult = ReturnType<typeof Readability.prototype.parse>;
@@ -28,13 +29,13 @@ const PartialProductDataJsonSchema = toJsonSchema(PartialProductDataSchema);
 const ProductDataJsonSchema = toJsonSchema(ProductDataSchema);
 
 const PARTIAL_DATA_EXTRACTOR_QUERY_STRING =
-	`Using the given partial JSON schema, ${JSON.stringify(PartialProductDataJsonSchema)}, inspect the below chunked dom data extracted via readability.js and return, in a JSON format, all the properties you can find correct values for. Abide by the given schema's shape at all costs.
+	`Using the given partial JSON schema, ${JSON.stringify(PartialProductDataJsonSchema)}, inspect the below chunked data and return, in a JSON format, all the properties you can find correct values for. Abide by the given schema's shape at all costs.
 
 	By JSON format, I mean "{}" over \`\`\`json{}\`\`\`.
 
 	Note that the "store" should be succinct (ideally a single word or two). If it cannot be expressed briefly, omit it.
 
-  Here's the dom data:
+  Here's the data:
 
   ` as const;
 
@@ -45,14 +46,13 @@ const getDataCoalescerQueryString = (possibleInferredData: {
 }) => {
 	const { url, name, store } = possibleInferredData;
 
-	return `Using the given JSON schema, ${JSON.stringify(ProductDataJsonSchema)}, coalesce the following partial results appropriately into a single JSON object abiding to the given schema. Ensure to return, in a JSON format, the combined result. If the data is truly undecipherable, simply return \`null\`.
+	return `Abiding by the given JSON schema, ${JSON.stringify(ProductDataJsonSchema)}, coalesce the following partial results appropriately into a single JSON object. By JSON format, I mean "{}" over \`\`\`json{}\`\`\`.
 
-	Note that ${name ? `, the product name could be ${name}` : ""} ${store ? `, the store name could be ${store}` : ""}, the url is ${url}. Feel free to also use these in determining the accurate json data.
+  If the given data is unsalvageably incomplete, the combined data makes little sense as an actual product sold from a legitimate shopping site, or the data is seemingly from a captcha block, simply return \`null\`, however it's more preferable to return completely valid data.
 
+	For some strong hints; ${name && !name.includes("Just a moment") ? ` the product name could be "${name}"` : ""} ${store ? `, the store name could be "${store}"` : ""}, the url is "${url}", the price will always be more than 0.
 
-	By JSON format, I mean "{}" over \`\`\`json{}\`\`\`.
-
-  Here are the results:
+  Here are the partials:
 
    ` as const;
 };
@@ -76,20 +76,20 @@ export const llmProductDataExtractor = async (
 
 	if (typeof relevantDomData !== "string") return null;
 
-	const siteMetaTags = JSON.stringify(
-		new Defuddle(documentArg.cloneNode(true) as Document, { url }).parse()
-			.metaTags,
-	);
+	const extractedDefuddleData = new Defuddle(
+		documentArg.cloneNode(true) as Document,
+		{ url },
+	).parse();
 
 	// Last resort for more info, scrape generically
 	const genericScrapedData = ProductDataSchemaKeys.flatMap((key) =>
-		Array.from(documentArg.querySelectorAll(`[class*=${key}]`)).map(
-			(ele) => ele.outerHTML,
+		getResultsOfMultipleSelectors(documentArg, `[class*=${key}]`).map((node) =>
+			node instanceof Element ? node.outerHTML : String(node),
 		),
 	);
 
 	const chunkedData = chunkifyLargeString(
-		` ${siteMetaTags} ${genericScrapedData} ${relevantDomData}`,
+		` ${JSON.stringify(extractedDefuddleData)} ${genericScrapedData} ${relevantDomData}`,
 		QUERY_SIZE,
 	);
 
