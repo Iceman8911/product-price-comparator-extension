@@ -21,7 +21,7 @@ export function PopupProductCard(props: { product: ProductDataSchema }) {
 				</h3>
 				<div class="flex items-center justify-between text-base">
 					<p class="text-accent">
-						{props.product.currency} {props.product.price}
+						{props.product.currency} {props.product.price.toLocaleString()}
 					</p>
 
 					<a class="link-info link" href={props.product.url} target="_blank">
