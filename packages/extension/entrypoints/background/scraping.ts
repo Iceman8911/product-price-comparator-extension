@@ -189,7 +189,7 @@ async function extractProductDataFromTabsAndCloseThem(
 	}
 
 	console.log(
-		"After extracting product data from tabs and closing tehme, data is:",
+		"After extracting product data from tabs and closing them, the data is:",
 		partiallyProcessedProductResults,
 	);
 
@@ -243,6 +243,11 @@ async function extractProductDataFromUrlsByLoadingTabsInHiddenWindow(
 		);
 
 	await browser.windows.remove(hiddenWindowId);
+
+	console.log(
+		"After extracting product data from all tabs and closing the window, the data is:",
+		partiallyProcessedProductResults,
+	);
 
 	return partiallyProcessedProductResults;
 }

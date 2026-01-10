@@ -41,7 +41,8 @@ async function extractAltProductDataFromUrlsHandler() {
 			const filteredProducts = scrapedProductData.filter(
 				(data) =>
 					data.name !== productName &&
-					!scrapedProductData.find((product) => product.name === data.name),
+					scrapedProductData.filter((product) => product.name === data.name)
+						.length === 1,
 			);
 
 			// Cache product data
