@@ -18,10 +18,7 @@ export default defineConfig({
 		web_accessible_resources: [
 			{
 				matches: ["<all_urls>"],
-				resources: [
-					"/extract-product-data-from-window.js",
-					"/extract-product-data-via-scripting.js",
-				],
+				resources: ["/extract-product-data-via-scripting.js"],
 			},
 		],
 	},

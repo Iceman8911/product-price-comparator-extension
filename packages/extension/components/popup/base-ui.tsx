@@ -20,8 +20,6 @@ export default function PopupUi() {
 
 	const activeTab = createMemo(() => tabs()?.[0]);
 
-	const activeTabId = () => activeTab()?.id ?? Number.MAX_SAFE_INTEGER;
-
 	const activeTabUrl = () =>
 		v.parse(UrlSchema, activeTab()?.url ?? DUMMY_TAB_URL);
 
@@ -53,7 +51,7 @@ export default function PopupUi() {
 			<Show
 				fallback={
 					<NoProductDetectedOnCurrentSiteYetUi
-						activeTab={{ id: activeTabId(), url: activeTabUrl() }}
+						activeTab={activeTab()}
 						setMainProduct={setMainProduct}
 					/>
 				}

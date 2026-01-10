@@ -57,7 +57,7 @@ async function* createTabsFromUrlsInBatches(
 	return [];
 }
 
-async function extractProductDataFromTab(
+export async function extractProductDataFromTab(
 	tab: Browser.tabs.Tab,
 	shouldEnableAi: boolean,
 ): Promise<PartiallyProcessedProductResults> {

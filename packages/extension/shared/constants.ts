@@ -32,8 +32,6 @@ export enum StorageKey {
 export enum MessageType {
 	/** For use in non-background scripts, bar injected scripts */
 	SEND_PROMPT_TO_PHIND_AI_VIA_BACKGROUND_WORKER = "1",
-	/** Popup sends to content script, content script sends to injected script. Injected script returns results to content script which returns to popup */
-	EXTRACT_PRODUCT_DATA_FROM_INJECTED_SITE = "2",
 
 	FETCH_ALT_PRODUCT_DATA_FROM_SEARCH_QUERY_VIA_BACKGROUND_WORKER = "3",
 }

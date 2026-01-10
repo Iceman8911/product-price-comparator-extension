@@ -1,12 +1,11 @@
 import {
 	fixCaughtErrorType,
 	isLikelyShoppingUrl,
-	type UrlSchema,
 } from "@shopping-optimizer/shared";
 import SearchIcon from "lucide-solid/icons/search";
 import type { Setter } from "solid-js";
-import { getActiveTabUrl, MessageType } from "@/shared/constants";
-import { sendExtensionMessage } from "@/shared/messaging/extension";
+import { extractProductDataFromTab } from "@/entrypoints/background/scraping";
+import { DUMMY_TAB_URL, getActiveTabUrl } from "@/shared/constants";
 import {
 	extensionSettingsStorageItem,
 	getCachedProductDataForSite,
@@ -15,10 +14,7 @@ import type { ProductDataSchema } from "../../../shared/src/models/product";
 
 type SharedProps = {
 	setMainProduct: Setter<ProductDataSchema | undefined | null>;
-	activeTab: {
-		url: UrlSchema;
-		id: number;
-	};
+	activeTab: Browser.tabs.Tab | undefined;
 };
 
 type DetectProductOnCurrentSiteButtonProps = SharedProps & {
@@ -30,8 +26,10 @@ function DetectProductOnCurrentSiteButton(
 	props: DetectProductOnCurrentSiteButtonProps,
 ) {
 	const handleBtnClick = async () => {
+		if (!props.activeTab) return;
+
 		const cachedProductData = await getCachedProductDataForSite(
-			props.activeTab.url,
+			props.activeTab.url ?? DUMMY_TAB_URL,
 		).getValue();
 
 		if (cachedProductData) {
@@ -42,11 +40,14 @@ function DetectProductOnCurrentSiteButton(
 		props.setIsDetectingProduct(true);
 
 		try {
-			const possibleProductData = await sendExtensionMessage(
-				MessageType.EXTRACT_PRODUCT_DATA_FROM_INJECTED_SITE,
-				(await extensionSettingsStorageItem.getValue()).enableAi,
-				props.activeTab.id,
-			);
+			const possibleProductData = (
+				await extractProductDataFromTab(
+					props.activeTab,
+					(
+						await extensionSettingsStorageItem.getValue()
+					).enableAi,
+				)
+			).products[0];
 
 			props.setMainProduct(possibleProductData);
 		} catch (e) {

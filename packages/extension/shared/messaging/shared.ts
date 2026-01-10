@@ -11,10 +11,6 @@ export type MessagingProtocolMap = {
 		data: PhindAiQueryRestArgs,
 	): ReturnType<typeof sendQueryToPhindAiViaBackgroundWorker>;
 
-	[MessageType.EXTRACT_PRODUCT_DATA_FROM_INJECTED_SITE](
-		shouldUseAi: boolean,
-	): ProductDataSchema | null;
-
 	[MessageType.FETCH_ALT_PRODUCT_DATA_FROM_SEARCH_QUERY_VIA_BACKGROUND_WORKER](arg: {
 		query: OpenSerpSearchQuerySchema;
 		productName: string;

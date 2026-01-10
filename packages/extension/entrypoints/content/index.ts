@@ -1,10 +1,6 @@
 import { isLikelyShoppingUrl } from "@shopping-optimizer/shared";
 import { MessageType } from "@/shared/constants";
-import {
-	onWindowMessage,
-	sendWindowMessage,
-} from "@/shared/messaging/content-script";
-import { onExtensionMessage } from "@/shared/messaging/extension";
+import { onWindowMessage } from "@/shared/messaging/content-script";
 import { sendQueryToPhindAiViaBackgroundWorker } from "@/utils/phind/backgound-script";
 
 function registerPhindAiMessageResponderFromInjectedScript() {
@@ -15,37 +11,12 @@ function registerPhindAiMessageResponderFromInjectedScript() {
 	);
 }
 
-function triggerProductDetectionFromPopupHandler() {
-	onExtensionMessage(
-		MessageType.EXTRACT_PRODUCT_DATA_FROM_INJECTED_SITE,
-		({ data: shouldEnableAi }) =>
-			sendWindowMessage(
-				MessageType.EXTRACT_PRODUCT_DATA_FROM_INJECTED_SITE,
-				shouldEnableAi,
-			),
-	);
-}
-
-function injectProductDataExtractorScript() {
-	window.addEventListener(
-		"load",
-		async () => {
-			registerPhindAiMessageResponderFromInjectedScript();
-			await injectScript("/extract-product-data-from-window.js", {
-				keepInDom: true,
-			});
-		},
-		{ once: true },
-	);
-}
-
 export default defineContentScript({
 	main() {
 		// Since I can't specify the sites to match to, and attaching handlers to all pages is wasteful
 		if (!isLikelyShoppingUrl(window.location.href)) return;
 
-		injectProductDataExtractorScript();
-		triggerProductDetectionFromPopupHandler();
+		registerPhindAiMessageResponderFromInjectedScript();
 	},
 	matches: ["<all_urls>"],
 	runAt: "document_start",
