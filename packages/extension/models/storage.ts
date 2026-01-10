@@ -1,6 +1,10 @@
 import * as v from "valibot";
 
-export const ExtensionSettingsSchema = v.object({ enableAi: v.boolean() });
+export const ExtensionSettingsSchema = v.object({
+	enableAi: v.boolean(),
+	/** Could be the user's city or country or whatever, but it's used for improving product recommendations */
+	location: v.string(),
+});
 export type ExtensionSettingsSchema = v.InferOutput<
 	typeof ExtensionSettingsSchema
 >;
@@ -15,4 +19,5 @@ export type PartialExtensionSettingsSchema = v.InferOutput<
 
 export const DEFAULT_EXTENSION_SETTINGS = {
 	enableAi: true,
+	location: "USA",
 } as const satisfies ExtensionSettingsSchema;

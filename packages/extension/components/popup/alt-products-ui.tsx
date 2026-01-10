@@ -2,6 +2,7 @@ import SearchIcon from "lucide-solid/icons/search";
 import type { SetStoreFunction } from "solid-js/store";
 import { MessageType } from "@/shared/constants";
 import { sendExtensionMessage } from "@/shared/messaging/extension";
+import { extensionSettingsStorageItem } from "@/shared/storage";
 import type { ProductDataSchema } from "../../../shared/src/models/product";
 import { PopupProductCard } from "./PopupProductCard";
 
@@ -19,6 +20,8 @@ export function PopupAltProductSearchButton(
 		setIsSearchingForAlts(true);
 
 		try {
+			const { location } = await extensionSettingsStorageItem.getValue();
+
 			const altProducts = await sendExtensionMessage(
 				MessageType.FETCH_ALT_PRODUCT_DATA_FROM_SEARCH_QUERY_VIA_BACKGROUND_WORKER,
 				{
@@ -26,7 +29,7 @@ export function PopupAltProductSearchButton(
 					query: {
 						engines: ["duckduckgo"],
 						limit: 15,
-						text: `Shopping for ${props.mainProductName}`,
+						text: `Shopping in ${location} for ${props.mainProductName}`,
 					},
 				},
 			);
