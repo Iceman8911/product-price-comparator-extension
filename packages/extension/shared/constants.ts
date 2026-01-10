@@ -5,9 +5,12 @@ import * as v from "valibot";
 import { getActiveTab } from "@/utils/tabs";
 
 export enum ExtensionData {
-	NAME = "Product Price Comparator",
+	NAME = "Shopping Optimizer",
 	VERSION = "0.0.1",
 	ID = `${NAME} - Iceman8911`,
+
+	GLOBAL_NAMESPACE = `__${ID}`,
+	GLOBAL_NAMESPACE_SETTINGS = `${GLOBAL_NAMESPACE}_settings`,
 }
 
 export const DUMMY_TAB_URL = v.parse(UrlSchema, "https://foo.bar");
@@ -33,6 +36,4 @@ export enum MessageType {
 	EXTRACT_PRODUCT_DATA_FROM_INJECTED_SITE = "2",
 
 	FETCH_ALT_PRODUCT_DATA_FROM_SEARCH_QUERY_VIA_BACKGROUND_WORKER = "3",
-
-	CONTENT_SCRIPT_READY = "4",
 }

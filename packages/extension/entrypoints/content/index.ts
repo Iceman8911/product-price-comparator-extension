@@ -4,10 +4,7 @@ import {
 	onWindowMessage,
 	sendWindowMessage,
 } from "@/shared/messaging/content-script";
-import {
-	onExtensionMessage,
-	sendExtensionMessage,
-} from "@/shared/messaging/extension";
+import { onExtensionMessage } from "@/shared/messaging/extension";
 import { sendQueryToPhindAiViaBackgroundWorker } from "@/utils/phind/backgound-script";
 
 function registerPhindAiMessageResponderFromInjectedScript() {
@@ -42,10 +39,6 @@ function injectProductDataExtractorScript() {
 	);
 }
 
-function broadcastReadyState() {
-	sendExtensionMessage(MessageType.CONTENT_SCRIPT_READY, true);
-}
-
 export default defineContentScript({
 	main() {
 		// Since I can't specify the sites to match to, and attaching handlers to all pages is wasteful
@@ -53,7 +46,6 @@ export default defineContentScript({
 
 		injectProductDataExtractorScript();
 		triggerProductDetectionFromPopupHandler();
-		broadcastReadyState();
 	},
 	matches: ["<all_urls>"],
 	runAt: "document_start",

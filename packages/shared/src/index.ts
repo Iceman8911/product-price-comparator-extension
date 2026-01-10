@@ -1,6 +1,7 @@
 export * as PlaceholderImage from "./assets/placeholder.webp";
 export * from "./constants";
 export * from "./models/env";
+export * from "./models/product";
 export * from "./models/shared";
 export * from "./utils/array";
 export * from "./utils/blob";

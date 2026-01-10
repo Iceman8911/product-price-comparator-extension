@@ -1,26 +1,11 @@
-import { extractProductDataFromDocumentOrWindow } from "@shopping-optimizer/shared";
 import { MessageType } from "@/shared/constants";
 import { onWindowMessage } from "@/shared/messaging/content-script";
-import { sendQueryToPhindAiFromInjectedScriptViaContentScript } from "@/utils/phind/content-script";
+import { extractProductDataFromCurrentWindow } from "./shared/extract-product-data";
 
 export default defineUnlistedScript(async () => {
 	onWindowMessage(
 		MessageType.EXTRACT_PRODUCT_DATA_FROM_INJECTED_SITE,
-		async ({ data: shouldUseAi }) => {
-			const product = await extractProductDataFromDocumentOrWindow([
-				window,
-				shouldUseAi
-					? (...queries) =>
-							sendQueryToPhindAiFromInjectedScriptViaContentScript(
-								...queries.map((query) => ({
-									query,
-									search: false,
-								})),
-							)
-					: undefined,
-			]);
-
-			return product;
-		},
+		async ({ data: shouldUseAi }) =>
+			extractProductDataFromCurrentWindow(shouldUseAi),
 	);
 });

@@ -8,15 +8,20 @@ export default defineConfig({
 		author: { email: "wuchijss3@gmail.com" },
 		description:
 			"Compares the product you're browsing with close alternatives from other popular sites to help you make the best choice.",
+		host_permissions: ["<all_urls>"],
 		name: "Shopping Optimizer",
-		optional_permissions: ["tabs"],
+		optional_host_permissions: ["<all_urls>"],
+		optional_permissions: ["tabs", "scripting"],
 		permissions: ["activeTab", "storage"],
 		short_name: "Product Price Optimiser",
 		version: "0.0.1",
 		web_accessible_resources: [
 			{
 				matches: ["<all_urls>"],
-				resources: ["/extract-product-data-from-window.js"],
+				resources: [
+					"/extract-product-data-from-window.js",
+					"/extract-product-data-via-scripting.js",
+				],
 			},
 		],
 	},
