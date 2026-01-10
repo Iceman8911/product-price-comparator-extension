@@ -56,7 +56,7 @@ async function extractAltProductDataFromUrlsHandler() {
 	);
 }
 
-export default defineBackground(async () => {
+export default defineBackground(() => {
 	sendPromptToPhindAiHandler();
 	extractAltProductDataFromUrlsHandler();
 });
