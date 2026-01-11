@@ -23,9 +23,11 @@ export const SUPPORTED_SITE_PRODUCT_DATA_MATCH_PATTERNS_AND_EXTRACTORS =
 		(entry) => [new MatchPattern(entry[0]), entry[1]] as const,
 	);
 
-const backupProductDataExtractor = ([ctx, llmQuerier, url]: Parameters<
-	typeof llmProductDataExtractor
->) => {
+const backupProductDataExtractor = ([
+	ctx,
+	llmQuerier,
+	url = ctx.location.href,
+]: Parameters<typeof llmProductDataExtractor>) => {
 	return (
 		schemaOrgProductDataExtractor(ctx, url) ??
 		llmProductDataExtractor(ctx, llmQuerier, url)
