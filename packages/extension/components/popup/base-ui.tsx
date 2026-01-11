@@ -58,7 +58,7 @@ export default function PopupUi() {
 				when={mainProduct()}
 			>
 				{(product) => (
-					<div class="flex h-full flex-col">
+					<div class="flex h-full w-full flex-col">
 						<div>
 							<PopupMainProduct mainProduct={product()} />
 
