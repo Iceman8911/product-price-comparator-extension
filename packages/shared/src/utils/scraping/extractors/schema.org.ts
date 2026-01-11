@@ -219,7 +219,7 @@ export const schemaOrgProductDataExtractor: ProductDataExtractor = (
 		clonedDocument.documentElement.outerHTML,
 	);
 
-	// Some sites without schema.org / jsonld metadat may have the info in their metatags, like:
+	// Some sites without schema.org / microdata metadata may have the info in their metatags, like:
 	/**
  * {
      "X-UA-Compatible": [
@@ -323,12 +323,12 @@ export const schemaOrgProductDataExtractor: ProductDataExtractor = (
 		return possibleProductDataFromMetatags as ProductDataSchema;
 	}
 
-	const schemaOrgData = defuddleSchemaOrgData ?? webAutoExtractorData.jsonld;
-
 	// No schemaOrgData so there's not much use going further
-	if (!schemaOrgData) return null;
+	if (!defuddleSchemaOrgData && !webAutoExtractorData.microdata) return null;
 
-	const possibleParsedProduct = findSchemaObjectWithProductData(schemaOrgData);
+	const possibleParsedProduct =
+		findSchemaObjectWithProductData(defuddleSchemaOrgData) ??
+		findSchemaObjectWithProductData(webAutoExtractorData.microdata);
 
 	if (v.is(ParsedProductSchema, possibleParsedProduct)) {
 		const {
