@@ -1,3 +1,4 @@
+import webAutoExtractor from "@marbec/web-auto-extractor";
 import { Readability } from "@mozilla/readability";
 import { toJsonSchema } from "@valibot/to-json-schema";
 import Defuddle from "defuddle";
@@ -81,6 +82,10 @@ export const llmProductDataExtractor = async (
 		{ url },
 	).parse();
 
+	const extractedWebAutoExtractorData = new webAutoExtractor({}).parse(
+		documentArg.documentElement.outerHTML,
+	);
+
 	// Last resort for more info, scrape generically
 	const genericScrapedData = ProductDataSchemaKeys.flatMap((key) =>
 		getResultsOfMultipleSelectors(documentArg, `[class*=${key}]`).map((node) =>
@@ -89,7 +94,7 @@ export const llmProductDataExtractor = async (
 	);
 
 	const chunkedData = chunkifyLargeString(
-		` ${JSON.stringify(extractedDefuddleData)} ${genericScrapedData} ${relevantDomData}`,
+		`${JSON.stringify(extractedWebAutoExtractorData)} ${JSON.stringify(extractedDefuddleData)} ${genericScrapedData} ${relevantDomData}`,
 		QUERY_SIZE,
 	);
 
