@@ -25,7 +25,8 @@ const DEFAULT_PARTIALLY_PROCESSED_RESULTS = {
 	products: [],
 } as const satisfies PartiallyProcessedProductResults;
 
-const EXTRACTION_TIMEOUT = 30000;
+const getExtractionTimeout = () =>
+	Math.round(Math.random() * (25000 - 15000) + 15000);
 
 async function* createTabsFromUrlsInBatches(
 	tabProps: ReadonlyArray<Browser.tabs.CreateProperties>,
@@ -128,12 +129,12 @@ async function extractProductDataFromTabsAndCloseThem(
 			const onUpdated = browser.tabs.onUpdated;
 
 			await new Promise<void>((resolve, reject) => {
-				const timeoutId = setTimeout(async () => {
+				setTimeout(async () => {
 					onUpdated.removeListener(listener);
 					reject(
-						`Product data extraction for tab: ${JSON.stringify(await getTab(tab.id ?? 0))}\n\nTimed out after ${EXTRACTION_TIMEOUT} ms`,
+						`Product data extraction for tab: ${JSON.stringify(await getTab(tab.id ?? 0))}\n\nTimed out after ${getExtractionTimeout()} ms`,
 					);
-				}, EXTRACTION_TIMEOUT);
+				}, getExtractionTimeout());
 
 				const listener: Parameters<typeof onUpdated.addListener>[0] = async (
 					eventTabId,
@@ -142,8 +143,6 @@ async function extractProductDataFromTabsAndCloseThem(
 				) => {
 					try {
 						if (eventTabId !== tabId || status !== "complete") return;
-
-						clearTimeout(timeoutId);
 
 						onUpdated.removeListener(listener);
 
