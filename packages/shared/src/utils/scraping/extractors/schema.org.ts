@@ -3,6 +3,7 @@
 import WebAutoExtractor from "@marbec/web-auto-extractor";
 import Defuddle from "defuddle";
 import * as v from "valibot";
+import PlaceholderImage from "../../../assets/placeholder.webp";
 import { PRODUCT_RATING_RANGE } from "../../../constants";
 import { ProductDataSchema } from "../../../models/product";
 import { UrlSchema } from "../../../models/shared";
@@ -217,6 +218,110 @@ export const schemaOrgProductDataExtractor: ProductDataExtractor = (
 	const webAutoExtractorData = webAutoExtractor.parse(
 		clonedDocument.documentElement.outerHTML,
 	);
+
+	// Some sites without schema.org / jsonld metadat may have the info in their metatags, like:
+	/**
+ * {
+     "X-UA-Compatible": [
+         "IE=edge,chrome=1",
+         "ie=edge"
+     ],
+     "viewport": [
+         "width=device-width,initial-scale=1"
+     ],
+     "theme-color": [
+         ""
+     ],
+     "title": [
+         "ORANGE MARMALEDE GEURTS 450G\n– GBN Farms"
+     ],
+     "description": [
+         "Fruit, sugar, a gelling agent and an acidulant. Those are the four key ingredients of jam. We use these ingredients at the optimal ratio. We are able to prepare the jam within a short space of time by cooking it in a vacuum kettle without a stirring mechanism. That way, the jam retains its optimal flavor and structure."
+     ],
+     "og:site_name": [
+         "GBN Farms"
+     ],
+     "og:url": [
+         "https://www.gbnfarms.com/products/orange-marmalede-geurts-450g"
+     ],
+     "og:title": [
+         "ORANGE MARMALEDE GEURTS 450G"
+     ],
+     "og:type": [
+         "product"
+     ],
+     "og:description": [
+         "Fruit, sugar, a gelling agent and an acidulant. Those are the four key ingredients of jam. We use these ingredients at the optimal ratio. We are able to prepare the jam within a short space of time by cooking it in a vacuum kettle without a stirring mechanism. That way, the jam retains its optimal flavor and structure."
+     ],
+     "og:price:amount": [
+         "1,700.00"
+     ],
+     "og:price:currency": [
+         "NGN"
+     ],
+     "og:image": [
+         "http://www.gbnfarms.com/cdn/shop/products/nmW3cYS4hq_1200x1200.jpg?v=1621887766"
+     ],
+     "og:image:secure_url": [
+         "https://www.gbnfarms.com/cdn/shop/products/nmW3cYS4hq_1200x1200.jpg?v=1621887766"
+     ],
+     "twitter:site": [
+         "@shopify"
+     ],
+     "twitter:card": [
+         "summary_large_image"
+     ],
+     "twitter:title": [
+         "ORANGE MARMALEDE GEURTS 450G"
+     ],
+     "twitter:description": [
+         "Fruit, sugar, a gelling agent and an acidulant. Those are the four key ingredients of jam. We use these ingredients at the optimal ratio. We are able to prepare the jam within a short space of time by cooking it in a vacuum kettle without a stirring mechanism. That way, the jam retains its optimal flavor and structure."
+     ],
+     "shopify-digital-wallet": [
+         "/47227797670/digital_wallets/dialog"
+     ]
+ }
+ */
+	const { metatags } = webAutoExtractorData;
+
+	const possibleProductDataFromMetatags: Partial<ProductDataSchema> = {
+		imgSrc: PlaceholderImage,
+		rating: PRODUCT_RATING_RANGE.MIN,
+	};
+
+	for (const tag in metatags) {
+		const value = metatags[tag]?.[0];
+
+		switch (tag) {
+			case "og:title":
+				possibleProductDataFromMetatags.name = value;
+				break;
+			case "og:url":
+				possibleProductDataFromMetatags.url = value;
+				break;
+			case "og:site_name":
+				possibleProductDataFromMetatags.store = value;
+				break;
+			case "og:price:currency":
+				possibleProductDataFromMetatags.currency = value;
+				break;
+			case "og:price:amount":
+				possibleProductDataFromMetatags.price =
+					SCRAPED_PRODUCT_DATA_CLEANER.price(value ?? "");
+				break;
+			case "og:rating":
+				possibleProductDataFromMetatags.rating =
+					SCRAPED_PRODUCT_DATA_CLEANER.rating(value ?? "");
+				break;
+			case "og:image":
+				possibleProductDataFromMetatags.imgSrc = value;
+				break;
+		}
+	}
+
+	if (v.is(ProductDataSchema, possibleProductDataFromMetatags)) {
+		return possibleProductDataFromMetatags as ProductDataSchema;
+	}
 
 	const schemaOrgData = defuddleSchemaOrgData ?? webAutoExtractorData.jsonld;
 
