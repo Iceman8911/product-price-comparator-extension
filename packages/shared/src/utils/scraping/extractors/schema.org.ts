@@ -53,10 +53,12 @@ const ParsedImageSchema = v.union([
 
 const ParsedVariantSchema = v.looseObject({
 	"@type": v.literal(ProductTypeLiteral),
-	image: ParsedImageSchema,
+	image: v.optional(ParsedImageSchema),
 	name: v.optional(v.string()),
 	/** This is the most important one here */
 	offers: ParsedProductOfferSchema,
+	price: v.optional(NumberOrNumericStringSchema),
+	priceCurrency: v.optional(v.string()),
 });
 
 const SharedPropsBetweenProductAndProductGroupSchema = v.looseObject({
@@ -382,13 +384,15 @@ export const schemaOrgProductDataExtractor: ProductDataExtractor = (
 			typeof schemaBrand === "string" ? schemaBrand : schemaBrand?.name;
 
 		const offers = schemaVariants[0]?.offers ?? [];
+		const variantPrice = schemaVariants[0]?.price;
+		const variantCurrency = schemaVariants[0]?.priceCurrency;
 
 		const schemaCurrency = Array.isArray(offers)
 			? offers[0]?.priceCurrency
-			: offers?.priceCurrency;
+			: (offers?.priceCurrency ?? variantCurrency);
 		const schemaPrice = Array.isArray(offers)
 			? offers[0]?.price
-			: offers?.price;
+			: (offers?.price ?? variantPrice);
 
 		if (!schemaPrice || !schemaCurrency) return null;
 
