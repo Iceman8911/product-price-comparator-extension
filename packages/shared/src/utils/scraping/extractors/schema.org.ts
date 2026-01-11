@@ -30,9 +30,11 @@ const ParsedProductGroupTypeSchema = getSchemaOrgTypeSchema(
 	ProductGroupTypeLiteral,
 );
 
+const NumberOrNumericStringSchema = v.union([v.string(), v.number()]);
+
 const ParsedSingleOfferSchema = v.looseObject({
 	/** "5970.00" */
-	price: v.string(),
+	price: NumberOrNumericStringSchema,
 	/** "NGN" */
 	priceCurrency: v.string(),
 });
@@ -61,7 +63,7 @@ const SharedPropsBetweenProductAndProductGroupSchema = v.looseObject({
 	aggregateRating: v.nullish(
 		v.looseObject({
 			/** "4.1" */
-			ratingValue: v.union([v.string(), v.number()]),
+			ratingValue: NumberOrNumericStringSchema,
 		}),
 	),
 
@@ -86,7 +88,7 @@ const ParsedProductSchema = v.looseObject({
 	offers: v.optional(ParsedProductOfferSchema),
 
 	/** Rarely present unless `offers` is unavailable: "5970.00" */
-	price: v.optional(v.string()),
+	price: v.optional(NumberOrNumericStringSchema),
 	/** Rarely present unless `offers` is unavailable:  "NGN" */
 	priceCurrency: v.optional(v.string()),
 });
@@ -361,7 +363,7 @@ export const schemaOrgProductDataExtractor: ProductDataExtractor = (
 			currency: schemaCurrency,
 			image: schemaImage,
 			name: schemaName,
-			price: schemaPrice,
+			price: `${schemaPrice}`,
 			rating: `${aggregateRating?.ratingValue ?? PRODUCT_RATING_RANGE.MIN}`,
 			store: site ?? author,
 			url: schemaDocumentUrl ?? ctxUrl,
@@ -397,7 +399,7 @@ export const schemaOrgProductDataExtractor: ProductDataExtractor = (
 			currency: schemaCurrency,
 			image: schemaImage,
 			name: schemaName,
-			price: schemaPrice,
+			price: `${schemaPrice}`,
 			rating: `${aggregateRating?.ratingValue ?? PRODUCT_RATING_RANGE.MIN}`,
 			store: site ?? author,
 			url: schemaDocumentUrl ?? ctxUrl,
