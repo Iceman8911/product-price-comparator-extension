@@ -59,7 +59,11 @@ export default function PopupUi() {
 			>
 				{(product) => (
 					<div class="flex h-full flex-col gap-4">
-						<PopupMainProduct mainProduct={product()} />
+						<div>
+							<PopupMainProduct mainProduct={product()} />
+
+							<div class="divider"></div>
+						</div>
 
 						<Show
 							fallback={
