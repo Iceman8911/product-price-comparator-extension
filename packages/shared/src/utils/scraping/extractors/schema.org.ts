@@ -1,5 +1,6 @@
 // For compliant shopping sites that implement schema.org
 
+import WebAutoExtractor from "@marbec/web-auto-extractor";
 import Defuddle from "defuddle";
 import * as v from "valibot";
 import { PRODUCT_RATING_RANGE } from "../../../constants";
@@ -195,16 +196,29 @@ const getProductDataFromScrapedSchemaOrgData = (arg: {
 	return v.parse(ProductDataSchema, extractedProductData);
 };
 
+const webAutoExtractor = new WebAutoExtractor({});
+
 export const schemaOrgProductDataExtractor: ProductDataExtractor = (
 	ctx,
 	ctxUrl = ctx.location.href,
 ) => {
 	const documentArg = ctx instanceof Document ? ctx : ctx.document;
 
-	const { schemaOrgData, image, site, author, title } = new Defuddle(
-		documentArg.cloneNode(true) as Document,
-		{ url: ctxUrl },
-	).parse();
+	const clonedDocument = documentArg.cloneNode(true) as Document;
+
+	const {
+		schemaOrgData: defuddleSchemaOrgData,
+		image,
+		site,
+		author,
+		title,
+	} = new Defuddle(clonedDocument, { url: ctxUrl }).parse();
+
+	const webAutoExtractorData = webAutoExtractor.parse(
+		clonedDocument.documentElement.outerHTML,
+	);
+
+	const schemaOrgData = defuddleSchemaOrgData ?? webAutoExtractorData.jsonld;
 
 	// No schemaOrgData so there's not much use going further
 	if (!schemaOrgData) return null;
