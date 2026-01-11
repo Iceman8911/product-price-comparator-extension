@@ -23,15 +23,44 @@ export const SUPPORTED_SITE_PRODUCT_DATA_MATCH_PATTERNS_AND_EXTRACTORS =
 		(entry) => [new MatchPattern(entry[0]), entry[1]] as const,
 	);
 
-const backupProductDataExtractor = ([
+const START_LABEL = "started for";
+const SUCCESS_LABEL = "succeeded for";
+const FAILURE_LABEL = "failed for";
+
+const EXPLICITLY_SUPPORTED_EXTRACTOR_LABEL = "Supported site extractor";
+const SCHEMA_ORG_EXTRACTOR_LABEL = "Schema org extractor";
+const LLM_EXTRACTOR_LABEL = "LLM extractor";
+
+const log = (...args: Parameters<typeof console.log>) => console.log(...args);
+
+const backupProductDataExtractor = async ([
 	ctx,
 	llmQuerier,
 	url = ctx.location.href,
 ]: Parameters<typeof llmProductDataExtractor>) => {
-	return (
-		schemaOrgProductDataExtractor(ctx, url) ??
-		llmProductDataExtractor(ctx, llmQuerier, url)
-	);
+	log(SCHEMA_ORG_EXTRACTOR_LABEL, START_LABEL, url);
+
+	const schemaOrgResult = schemaOrgProductDataExtractor(ctx, url);
+
+	if (schemaOrgResult) {
+		log(SCHEMA_ORG_EXTRACTOR_LABEL, SUCCESS_LABEL, url);
+
+		return schemaOrgResult;
+	}
+	log(SCHEMA_ORG_EXTRACTOR_LABEL, FAILURE_LABEL, url);
+
+	log(LLM_EXTRACTOR_LABEL, START_LABEL, url);
+
+	const llmResult = await llmProductDataExtractor(ctx, llmQuerier, url);
+
+	if (llmResult) {
+		log(LLM_EXTRACTOR_LABEL, SUCCESS_LABEL, url);
+
+		return llmResult;
+	}
+	log(LLM_EXTRACTOR_LABEL, FAILURE_LABEL, url);
+
+	return null;
 };
 
 /** All encompassing product extractor */
@@ -52,10 +81,21 @@ export const extractProductDataFromDocumentOrWindow = async ([
 		);
 
 	if (matchingSupportedExtractor) {
-		return (
-			matchingSupportedExtractor[1](documentArg, url) ??
-			backupProductDataExtractor([documentArg, llmQuerier, url])
+		log(EXPLICITLY_SUPPORTED_EXTRACTOR_LABEL, START_LABEL, url);
+		const matchingExtractorResult = matchingSupportedExtractor[1](
+			documentArg,
+			url,
 		);
+
+		if (matchingExtractorResult) {
+			log(EXPLICITLY_SUPPORTED_EXTRACTOR_LABEL, SUCCESS_LABEL, url);
+
+			return matchingExtractorResult;
+		}
+
+		log(EXPLICITLY_SUPPORTED_EXTRACTOR_LABEL, FAILURE_LABEL, url);
+
+		return backupProductDataExtractor([documentArg, llmQuerier, url]);
 	}
 
 	return backupProductDataExtractor([documentArg, llmQuerier, url]);
