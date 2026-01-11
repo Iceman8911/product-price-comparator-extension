@@ -58,7 +58,7 @@ export default function PopupUi() {
 				when={mainProduct()}
 			>
 				{(product) => (
-					<div class="flex h-full flex-col gap-4">
+					<div class="flex h-full flex-col">
 						<div>
 							<PopupMainProduct mainProduct={product()} />
 
@@ -67,7 +67,7 @@ export default function PopupUi() {
 
 						<Show
 							fallback={
-								<div class="flex flex-col items-center justify-center gap-4">
+								<div class="flex flex-col items-center justify-center gap-2">
 									<p class="text-base">Search for alternatives?</p>
 									<PopupAltProductSearchButton
 										mainProductName={product().name}

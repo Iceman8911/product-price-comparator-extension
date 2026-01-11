@@ -45,7 +45,7 @@ export function PopupAltProductSearchButton(
 	return (
 		<BaseButton
 			aria-label="Search for alternative products"
-			class="btn-circle btn-primary"
+			class="btn-circle btn-primary w-full"
 			disabled={isSearchingForAlts()}
 			onClick={handleBtnClick}
 		>
@@ -53,7 +53,7 @@ export function PopupAltProductSearchButton(
 				fallback={<div class="loading loading-spinner"></div>}
 				when={!isSearchingForAlts()}
 			>
-				<SearchIcon />
+				<SearchIcon /> <div class="font-normal text-base">Search</div>
 			</Show>
 		</BaseButton>
 	);
