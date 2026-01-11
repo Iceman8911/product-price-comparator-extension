@@ -1,5 +1,6 @@
 import {
 	isLikelyShoppingUrl,
+	type ProductDataSchema,
 	sendQueryToPhindAi,
 	type UrlSchema,
 } from "@shopping-optimizer/shared";
@@ -33,8 +34,25 @@ async function extractAltProductDataFromUrlsHandler() {
 				[],
 			);
 
-			const scrapedProductData = await extractProductDataFromUrls(
-				...sitesToTryScraping,
+			const cachedProducts: ProductDataSchema[] = [];
+			const sitesWithoutCachedProducts: UrlSchema[] = [];
+			const cacheSearchPromises: Promise<void>[] = [];
+
+			for (const site of sitesToTryScraping) {
+				const storageItem = getCachedProductDataForSite(site);
+
+				cacheSearchPromises.push(
+					storageItem.getValue().then((val) => {
+						if (val) cachedProducts.push(val);
+						else sitesWithoutCachedProducts.push(site);
+					}),
+				);
+			}
+
+			await Promise.all(cacheSearchPromises);
+
+			const scrapedProductData = cachedProducts.concat(
+				await extractProductDataFromUrls(...sitesWithoutCachedProducts),
 			);
 
 			// Filter out duplicates
@@ -46,11 +64,13 @@ async function extractAltProductDataFromUrlsHandler() {
 			);
 
 			// Cache product data
-			setTimeout(() => {
-				for (const product of filteredProducts) {
-					getCachedProductDataForSite(product.url).setValue(product);
-				}
-			}, 1000);
+			const cacheSavePromises: Promise<void>[] = [];
+			for (const product of filteredProducts) {
+				cacheSavePromises.push(
+					getCachedProductDataForSite(product.url).setValue(product),
+				);
+			}
+			await Promise.all(cacheSavePromises);
 
 			return filteredProducts;
 		},
